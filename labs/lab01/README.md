@@ -21,8 +21,9 @@ Ans: We used the command line configuration method. Steps:
 6. Reboot manually once.
 
 **RQ5: What command did you run to verify that SSH is active? Include the relevant output snippet.**    
-Ans: We used the command "sudo systemctl status ssh" to verify that SSH is active. The output snippet shows that the SSH service is active (running).
-  ![alt](image.png) 
+Ans: We used the command "sudo systemctl status ssh" to verify that SSH is active. The output snippet shows that the SSH service is active.
+
+![alt](image.png) 
 
 **RQ6: In your own words, why is SSH a necessary tool for managing edge devices after deployment?**  
 Ans: It's necessary for remote management of edge devices after deployment. It allows for secure, headless connections with authentication and more automated setup.
