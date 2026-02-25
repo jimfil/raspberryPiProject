@@ -116,3 +116,16 @@ Ans: Using different dependency versions across teams leads to "broken" code whe
 
 **RQ29: How can you verify you installed packages into the venv (not the system Python)? Give one command and explain what you look for.**  
 Ans: Run pip list after activating your virtual environment. If the packages you installed appear in the output, they are installed in the venv. 
+
+
+**RQ51: List at least five concrete problems in the bad README that would block or confuse a new team. Be specific (quote or reference the problematic line/section).**
+Ans: 
+1. Vague SSH command (`ssh raspberrypi`): It lacks the required username (e.g., `pi@<IP>`) and assumes the Pi is discoverable by hostname without explaining how to find its IP address.
+
+2. Missing repository clone: The instruction `cd lab01` assumes the user has already downloaded the project, completely skipping the essential git clone step.
+
+3. Non-executable dependency installation: The instruction `pip install (see my imports...)` is not copy-pasteable. It forces the user to manually guess libraries instead of providing a standard `pip install -r requirements.txt` command.
+
+4. Failure to activate the virtual environment: It instructs the user to create the venv (`python -m venv venv`) but skips the critical activation step (e.g., `source venv/bin/activate`), which will lead to incorrect global package installations.
+
+5. Ambiguous expected output: It vaguely states "You can check the file" without specifying the file's name, its location, or what a successful execution actually looks like.
