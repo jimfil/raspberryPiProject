@@ -26,13 +26,14 @@ def utc_now_iso() -> str:
 def generate_events(device_id, event_type, count, interval, out, starting_total, verbose):
     if count <= 0:
         print("Error: --count must be > 0", file=sys.stderr)
-        sys.exit(2)
+        raise SystemExit(2)
     if interval < 0:
         print("Error: --interval must be >= 0", file=sys.stderr)
-        sys.exit(2)
+        raise SystemExit(2)
     
     run_id = str(uuid.uuid4())
     deposit_total = starting_total
+    written = 0
 
     try:
         with open(out, 'a', encoding='utf-8') as f:
@@ -52,17 +53,17 @@ def generate_events(device_id, event_type, count, interval, out, starting_total,
                     record["deposit_delta"] = 1
                     record["deposit_total"] = deposit_total
                 elif event_type == 'lid_open':
-                    pass
+                    record["lid_open"] = True
                 elif event_type == 'lid_close':
-                    pass
+                    record["lid_close"] = True
                 elif event_type == 'maintenance_start':
-                    pass
+                    record["maintenance_start"] = True
                 elif event_type == 'maintenance_end':
-                    pass
+                    record["maintenance_end"] = True
                 elif event_type == 'sensor_error':
-                    pass
+                    record["sensor_error"] = True
                 elif event_type == 'waste_full':
-                    pass
+                    record["waste_full"] = True
                 elif event_type == 'heartbeat':
                     record["status"] = "online"
 
@@ -72,12 +73,19 @@ def generate_events(device_id, event_type, count, interval, out, starting_total,
                     f.flush()
                 except Exception as e:
                     print(f"Error writing to file: {e}", file=sys.stderr)
-                    sys.exit(1)
+                    raise SystemExit(1)
+                
+                written += 1
 
+                if verbose and seq % 5 == 0:
+                    print(f"generated seq={seq} type={event_type} out={out}")
+
+                if interval > 0 and seq < count:
+                    time.sleep(interval)
                     
     except KeyboardInterrupt:
-        print(f"\nInterrupted")
-        sys.exit(0)
+        print(f"\nInterrupted by user. Wrote {written} records.")
+        raise SystemExit(0)
 
 if __name__ == '__main__':
     generate_events()
