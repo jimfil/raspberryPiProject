@@ -119,6 +119,103 @@ Ans: Using different dependency versions across teams leads to "broken" code whe
 Ans: Run pip list after activating your virtual environment. If the packages you installed appear in the output, they are installed in the venv. 
 
 
+**RQ31: Why might it be useful to start with a mock event generator instead of connecting real hardware immediately?**  
+Ans: It allows software development (backend, data pipelines, UI) to proceed in parallel without waiting for hardware availability. It provides predictable, extreme, and easily reproducible edge cases that might be dangerous or difficult to trigger on real physical hardware.
+
+**RQ32: What aspects of the system can you test with this mock that are independent of sensors?**  
+Ans: We can test CLI parsing, events, and JSON line logs.
+
+**RQ33: Why is it useful to distinguish between “activity” events (like deposit) and “liveness” events (like heartbeat)?**  
+Ans: Distinguishing these two types of events separates functional data from system health. 
+
+**RQ34: Give one example of how a system might misbehave if heartbeats were missing.**  
+Ans: If a bin remains unused for a long time, the system might think that the wastebin is offline or broken, even if it is working properly because it does not receive any heartbeats.
+
+**RQ35: Which optional parameters (if any) did you add, and why?**  
+Ans: We added `--starting-total` to simulate restarting an application with an existing total count of waste and `--verbose` to allow human operators to monitor the log appending in real time without interfering with the JSON lines structure.
+
+**RQ36: Why is it important that invalid CLI arguments fail early and clearly?**  
+Ans: Failing early with a clear message prevents the script from running half-way, generating or executing corrupted data. 
+
+**RQ37: Why is JSON Lines a good fit for append-only event logs?**  
+Ans: With JSON Lines, each line is a valid JSON object, so we can simply append new lines to the file without breaking the overall structure. This makes it easy to add new events without modifying the entire file. 
+
+**RQ38: Why is it useful to include both seq and timestamps in each record?**  
+Ans: Because it allows us to see the time a record is emitted, allowing us to see the time periods the wastebin is beeing used the most and the times it isn't, allowing us to shedule the eptying of the bin, maybe even turn off the bin for energy saving the times it isn't beeing used. The seq number allows us to see the exact number of records written, which is useful for debugging and ensuring that no records are lost or duplicated.
+
+**RQ39: Why should deposit_total be monotonically increasing within a run?**  
+Ans: `deposit_total` tracks the amount of waste deposited. Because waste cannot be "undeposited" in this context (only emptied during a separate maintenance event), the total count must strictly grow over the lifecycle of the device to represent physical reality accurately.
+
+**RQ40: Which of the above correctness rules would be hardest to verify manually, and why?**    
+Ans: The deposit_total, because two or more users could use the bin at the same time, essentially counting all of them as 1 deposit, even though technically we had as many as the number of individual users, or the lid of the bin could be left open which creates more problems for us.
+
+**RQ41: What problems arise if operational messages are mixed into event logs?**  
+Ans: Mixing human-readable text like "Error occurred" or "Started successfully" into a file meant purely for JSON parsers will cause the automated parser to crash on that line because the file is no longer strictly JSONL compliant.
+
+**RQ42: Why might operational logs still be essential during debugging?**  
+Ans: While the event log tells us what happened in the application domain, the operational log tells us how the application process is running. 
+
+**RQ43: Why is it important to distinguish usage errors from runtime errors?**  
+Ans: Usage errors (like passing `--count 0`) mean the user is at fault and needs to fix their command. Runtime errors (like a full hard drive) mean the environment or logic is at fault. This way we can debug the issue properly.
+
+**RQ44: How could consistent exit codes be useful in automated systems?**  
+Ans: An automated script can read exit codes. For example, if it receives code 2 (usage error), it might stop and alert the user. If it receives code 1 (runtime error), it might attempt an automatic retry.
+
+**RQ45: What could go wrong if a program is terminated without handling interrupts properly?**  
+Ans: A program without interrupt handling might not close files properly, leading to data corruption or loss. It might also leave temporary files behind or fail to release system resources, causing instability.
+
+**RQ46: Show the first and last JSON record produced by this test and explain how the counters changed.**  
+Test Run:
+`python event_generator.py --device-id wastebin-01 --event-type deposit --count 5 --interval 0.1 --out test.jsonl --starting-total 0 --verbose`
+
+First Line:
+`{"event_time": "2026-02-26T12:55:53.279Z", "ingest_time": "2026-02-26T12:55:53.279Z", "device_id": "wastebin-01", "event_type": "deposit", "seq": 1, "run_id": "9512b3cb-c6a6-42c6-b34d-593e66506c03", "deposit_delta": 1, "deposit_total": 1}`
+
+Last Line:
+`{"event_time": "2026-02-26T12:55:54.082Z", "ingest_time": "2026-02-26T12:55:54.082Z", "device_id": "wastebin-01", "event_type": "deposit", "seq": 5, "run_id": "9512b3cb-c6a6-42c6-b34d-593e66506c03", "deposit_delta": 1, "deposit_total": 5}`
+
+Ans: The deposit_total starts at 1 and ends at 5, because we started with a starting_total of 0 and we generated 5 events, each event incrementing the deposit_total by 1. Same with seq, it starts at 1 and ends at 5, because we generated 5 events.
+
+**RQ47: How can a consumer distinguish heartbeat records from deposit records in the log?**  
+Ans: Via the event_type field. Heartbeat records have "event_type": "heartbeat" and deposit records have "event_type": "deposit".
+
+**RQ48: For each invalid command, show the error message and exit code.**  
+Ans: We performed two tests.
+The first test was:
+`python event_generator.py --device-id wastebin-01 --event-type heartbeet --count 5 --interval 0.1 --out test.jsonl --starting-total 0 --verbose`
+
+Error message:
+```text
+Usage: event_generator.py [OPTIONS]
+Try 'event_generator.py --help' for help.
+
+Error: Invalid value for '--event-type': 'heartbeet' is not one of 'deposit', 'heartbeat', 'lid_open', 'lid_close', 'maintenance_start', 'maintenance_end', 'sensor_error', 'waste_full'.
+```
+Exit Code: `2`
+
+The second test was:
+`python event_generator.py --device-id wastebin-01 --event-type heartbeat --count 0 --interval 0.1 --out test.jsonl --starting-total 0 --verbose`
+
+Error message:
+`Error: --count must be > 0`
+
+Exit Code: `2`
+
+**RQ49: Which invalid input do you think is most likely in real usage, and why?**  
+Ans: An invalid `--event-type` due to typos (like typing "heartbeet") or omitting a required argument like `--out` are the most likely issues. When manually typing these commands mistakes may be made.
+
+
+**RQ50: How many records were written before interruption?**  
+Ans: 13 records were written before the script was manually interrupted by the user (`Ctrl+C`).
+
+Test Run:
+```powershell
+PS C:\Users\dimit\raspberryPiProject\labs\lab01> python event_generator.py --device-id wastebin-01 --event-type heartbeat --count 200 --interval 0.1 --out events.log                       
+
+Interrupted by user. Wrote 13 records.
+```
+
+
 **RQ51: List at least five concrete problems in the bad README that would block or confuse a new team. Be specific (quote or reference the problematic line/section).**
 Ans: 
 1. Vague SSH command (`ssh raspberrypi`): It lacks the required username (e.g., `pi@<IP>`) and assumes the Pi is discoverable by hostname without explaining how to find its IP address.
