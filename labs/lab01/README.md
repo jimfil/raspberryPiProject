@@ -210,7 +210,7 @@ Ans: 13 records were written before the script was manually interrupted by the u
 
 Test Run:
 ```powershell
-PS C:\Users\dimit\raspberryPiProject\labs\lab01> python event_generator.py --device-id wastebin-01 --event-type heartbeat --count 200 --interval 0.1 --out events.log                       
+python event_generator.py --device-id wastebin-01 --event-type heartbeat --count 200 --interval 0.1 --out events.log                       
 
 Interrupted by user. Wrote 13 records.
 ```
