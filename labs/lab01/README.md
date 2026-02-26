@@ -71,11 +71,12 @@ Ans: Python 3.13 with pip 25.1.1. Based on the python version certain programs m
 Ans: One member of the team created the repository. Then he added the rest of the team members as collaborators.
 
 **RQ15:  What would likely go wrong if each team member kept their own local version of the lab/project work?**  
-Ans: If each team member kept their own local version of the lab/project work, the project faces three critical risks: code divergence & merge conflicts, loss of accountability & Rollbacks, manual syncing errors 
+Ans: If each team member kept their own local version of the lab/project work, the project faces three critical risks: code divergence & merge conflicts, loss of accountability & Rollbacks, manual syncing errors.
 
 **RQ16: What is the difference between git add and git commit (in your own words)?**  
-Ans: git add: Selects and moves specific file changes to the Staging Area (the "loading dock") to prepare them for the next update.
-git commit: Creates a permanent, timestamped snapshot of all staged changes in the project history with a descriptive message.
+Ans: 
+1. git add: Selects and moves specific file changes to the Staging Area (the "loading dock") to prepare them for the next update.
+2. git commit: Creates a permanent, timestamped snapshot of all staged changes in the project history with a descriptive message.
 
 **RQ17: What does git push do, and why is it important in a team setting?**  
 Ans: The git push command pushes all the changes that were created by a singular user to the github repository so that the rest of the team's members have access to the new source code.
