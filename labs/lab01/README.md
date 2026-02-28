@@ -66,7 +66,7 @@ Interrupted by user. Wrote X records.
 Ans: The commit hash of the final end-of-lab commit for Lab 01 is b6f68ea9a92b48601470072f83079eb84feb8cf8 with the name "rq11-rq29 Lab 01 report".
 
 **RQ1: What hostname and IP address did you use?**  
-Ans: Hostname: iotlab-Upat-5
+Ans: Hostname: iotlab_upat_5
 IP Address: 192.168.137.244
 
 **RQ2: Did DNS resolution work (ping google.com)? If it failed, what does that imply?**  
