@@ -17,3 +17,12 @@ By leveraging **Raspberry Pi** and **Python**, we are developing a system design
 
 * **`/labs`**: Contains the code and reports for our weekly lab assignments.
 * *(More directories will be added as the project progresses)*
+
+## Getting Started
+
+To get started with the project, clone the repository to your local machine and navigate into the project directory:
+
+```bash
+git clone https://github.com/jimfil/raspberryPiProject.git
+cd raspberryPiProject
+```
