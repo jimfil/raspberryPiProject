@@ -94,8 +94,8 @@ Ans: We used the command "sudo systemctl status ssh" to verify that SSH is activ
 Ans: It's necessary for remote management of edge devices after deployment. It allows for secure, headless connections with authentication and more automated setup.
 
 **RQ7: What SSH command did you use, and which username ?**  
-Ans: `ssh iotlab-upat-5@192.168.137.244`
-username: iotlab-upat-5
+Ans: `ssh iotlab_upat_5@192.168.137.244`
+username: iotlab_upat_5
 
 **RQ8: Did you see a host key prompt the first time? What is that prompt for (in your own words)?**  
 Ans: Yes, we saw the host key prompt the first time. It is the first authentication, without SSH key, that asks us to confirm the host key and enter the password we set.
