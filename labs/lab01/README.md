@@ -1,4 +1,69 @@
+# Section A: Runbook (How to run our code)
+
+## Clone the Repository
+If you haven't already cloned the repository, do so first:
+```bash
+git clone https://github.com/jimfil/raspberryPiProject.git
+```
+
+## Environment Setup / Activation (venv)
+Then, navigate to the `labs/lab01` directory and create a virtual environment:
+```powershell
+cd raspberryPiProject/labs/lab01
+python -m venv venv
+```
+
+Activate the virtual environment:
+- On Windows:
+  ```powershell
+  .\venv\Scripts\activate
+  ```
+- On Linux/macOS (Raspberry Pi):
+  ```bash
+  source venv/bin/activate
+  ```
+
+## Dependency Installation
+Install the required packages using the `requirements.txt` file. For this project, `click` is required for the CLI interface.
+```powershell
+pip install -r requirements.txt
+```
+
+## Exact Commands (copy/paste)
+To run the event generator and create 5 deposit events with verbose output:
+```powershell
+python event_generator.py --device-id wastebin-01 --event-type deposit --count 5 --interval 0.1 --out test.log --starting-total 0 --verbose
+```
+
+To run a heartbeat event sequence with 200 events (you can interrupt it manually with `Ctrl+C`):
+```powershell
+python event_generator.py --device-id wastebin-01 --event-type heartbeat --count 200 --interval 0.1 --out events.log
+```
+
+To see all available commands and help options:
+```powershell
+python event_generator.py --help
+```
+
+## Expected Outputs
+When running the deposit command from above, the script will output the events to the console (because of `--verbose`) and append the JSON Lines to `test.log`. Example contents of `test.log`:
+```json
+{"event_time": "2026-02-26T12:55:53.279Z", "ingest_time": "2026-02-26T12:55:53.279Z", "device_id": "wastebin-01", "event_type": "deposit", "seq": 1, "run_id": "9512b3cb-c6a6-42c6-b34d-593e66506c03", "deposit_delta": 1, "deposit_total": 1}
+{"event_time": "2026-02-26T12:55:53.480Z", "ingest_time": "2026-02-26T12:55:53.480Z", "device_id": "wastebin-01", "event_type": "deposit", "seq": 2, "run_id": "9512b3cb-c6a6-42c6-b34d-593e66506c03", "deposit_delta": 1, "deposit_total": 2}
+...
+```
+
+If you interrupt a long-running script manually, you'll see a clean shutdown message:
+```text
+Interrupted by user. Wrote X records.
+```
+
+---
+
 ## Section B: Report
+
+**RQ0: What is the commit hash of your final end-of-lab commit for Lab 01?**
+Ans: The commit hash of the final end-of-lab commit for Lab 01 is b6f68ea9a92b48601470072f83079eb84feb8cf8 with the name "rq11-rq29 Lab 01 report".
 
 **RQ1: What hostname and IP address did you use?**  
 Ans: Hostname: iotlab-Upat-5
@@ -28,14 +93,14 @@ Ans: We used the command "sudo systemctl status ssh" to verify that SSH is activ
 **RQ6: In your own words, why is SSH a necessary tool for managing edge devices after deployment?**  
 Ans: It's necessary for remote management of edge devices after deployment. It allows for secure, headless connections with authentication and more automated setup.
 
-**RQ6: What SSH command did you use, and which username ?**  
+**RQ7: What SSH command did you use, and which username ?**  
 Ans: `ssh iotlab-upat-5@192.168.137.244`
 username: iotlab-upat-5
 
-**RQ7: Did you see a host key prompt the first time? What is that prompt for (in your own words)?**  
+**RQ8: Did you see a host key prompt the first time? What is that prompt for (in your own words)?**  
 Ans: Yes, we saw the host key prompt the first time. It is the first authentication, without SSH key, that asks us to confirm the host key and enter the password we set.
 
-**RQ8: What does uptime tell you that is relevant for edge systems?**  
+**RQ9: What does uptime tell you that is relevant for edge systems?**  
 Ans: The uptime command provides key health metrics for edge systems:
 
 1. System Time: Ensures accurate logs and data synchronization.
@@ -43,7 +108,7 @@ Ans: The uptime command provides key health metrics for edge systems:
 3. Active Users: Monitors current SSH sessions and remote access.
 4. Load Average: Shows CPU workload to ensure the edge device isn't overwhelmed. 
 
-**RQ9: Did you enable SSH keys? describe the steps briefly.**  
+**RQ10: Did you enable SSH keys? describe the steps briefly.**  
 Ans: Yes, we enabled SSH key-based authentication using the following steps in Git Bash:
 
 1. Generated a new SSH key pair using `ssh-keygen -t ed25519`.
@@ -51,71 +116,71 @@ Ans: Yes, we enabled SSH key-based authentication using the following steps in G
 3. Started the SSH agent using `eval "$(ssh-agent -s)"` and added the private key with `ssh-add ~/.ssh/id_ed25519`.
 4. Copied the public key to the Raspberry Pi using `ssh-copy-id iotlab_upat_5@192.168.137.244` to allow passwordless login.
 
-**RQ10: Why are SSH keys generally preferred over passwords for remote access?**  
+**RQ11: Why are SSH keys generally preferred over passwords for remote access?**  
 Ans: SSH keys are preferred for two main reasons:
 1. Security: They are much more resistant to brute-force attacks than passwords.
 2. Convenience: They enable faster, passwordless, and automated remote access.
 
-**RQ11: Is system time correct? If not, what could break downstream (give two examples)?**  
+**RQ12: Is system time correct? If not, what could break downstream (give two examples)?**  
 Ans: System time is correct, incorrect system time triggers "silent" downstream failures:
 1. SSL/TLS Failures: Security certificates have strict validity periods. Outdated system time causes tools like apt and pip to reject connections as "insecure," blocking updates and installations.
 2. Build & Cache Issues: Tools like Python’s internal caching rely on timestamps.
 
-**RQ12: How much free disk space is available? Why does disk usage matter for logging systems**  
+**RQ13: How much free disk space is available? Why does disk usage matter for logging systems**  
 Ans: The available disk space is ~35.7GBytes. The disk usage for logging systems matters because if the disk space runs out, critical system operations may halt, which can prevent the administrators from diagnosing bugs and issues.
 
-**RQ13: What Python version is installed? Why might the Python version affect reproducibility?**  
+**RQ14: What Python version is installed? Why might the Python version affect reproducibility?**  
 Ans: Python 3.13 with pip 25.1.1. Based on the python version certain programs may not run, or compile correctly, so we need to make sure we work on the same version of python both on our personal computer and raspberry pi.
 
-**RQ14: Who created the repository and how did you grant access to teammates (briefly)?**  
+**RQ15: Who created the repository and how did you grant access to teammates (briefly)?**  
 Ans: One member of the team created the repository. Then he added the rest of the team members as collaborators.
 
-**RQ15:  What would likely go wrong if each team member kept their own local version of the lab/project work?**  
+**RQ16:  What would likely go wrong if each team member kept their own local version of the lab/project work?**  
 Ans: If each team member kept their own local version of the lab/project work, the project faces three critical risks: code divergence & merge conflicts, loss of accountability & Rollbacks, manual syncing errors.
 
-**RQ16: What is the difference between git add and git commit (in your own words)?**  
+**RQ17: What is the difference between git add and git commit (in your own words)?**  
 Ans: 
 1. git add: Selects and moves specific file changes to the Staging Area (the "loading dock") to prepare them for the next update.
 2. git commit: Creates a permanent, timestamped snapshot of all staged changes in the project history with a descriptive message.
 
-**RQ17: What does git push do, and why is it important in a team setting?**  
+**RQ18: What does git push do, and why is it important in a team setting?**  
 Ans: The git push command pushes all the changes that were created by a singular user to the github repository so that the rest of the team's members have access to the new source code.
 
-**RQ18: Can you think what problem can happen if two teammates edit the same file without pulling first?**  
+**RQ19: Can you think what problem can happen if two teammates edit the same file without pulling first?**  
 Ans: If 2 people edit the same file without pulling first, there will be conflicts. Conflicts happen when the user removes, or adds new lines of code that overlap the change of the other user. 
 
-**RQ19: Did your team use branches? If yes, describe your workflow briefly. If no, explain why.**  
+**RQ20: Did your team use branches? If yes, describe your workflow briefly. If no, explain why.**  
 Ans: We used branch for test purposes. Specifically, we created a test branch, named `my-test-branch`. The change made in the repository is the creation of a test file name `test.txt`, location: `labs/lab01/test.txt`
 
-**RQ20: What is a merge conflict, and when does it happen?**    
+**RQ21: What is a merge conflict, and when does it happen?**    
 Ans: A merge conflict is when changes have been made to the same part of a file by two people or more when we push the file in a github repository.
 
-**RQ21: Which authentication method did you use to push to GitHub (HTTPS+token, SSH key, other)? Why?**  
+**RQ22: Which authentication method did you use to push to GitHub (HTTPS+token, SSH key, other)? Why?**  
 Ans: On our personal computer, each team member uses the SSH key from their laptop. On the raspberry pi we have setup an SSH key that we linked with our repository, since HTTPS password authentication is not supported for Git operations. That way we can have access to a private repository, and push/pull access. 
 
-**RQ22: Why should virtual environments not be committed to git?**  
+**RQ23: Why should virtual environments not be committed to git?**  
 Ans: Virtual environments are machine-specific and do not work on different computers and take up a lot of space unnecessarily.
 
-**RQ23: Why is it usually not acceptable to commit logs?**  
+**RQ24: Why is it usually not acceptable to commit logs?**  
 Ans: Logs do not contain a part of the source code, and are large files that can slow down operations.
 
-**RQ24: Where on the Pi did you clone the repo (path)? Why did you choose that location?**  
+**RQ25: Where on the Pi did you clone the repo (path)? Why did you choose that location?**  
 Ans: The home directory of the raspberry Pi, that is also the first directory of the terminal. This way we can access faster the lab's files instead of navigating through the `change directory (cd)` command.
 
-**RQ25: What did sys.executable show, and how does that prove you are using the venv?**  
+**RQ26: What did sys.executable show, and how does that prove you are using the venv?**  
 Ans: `sys.executable` output: `/home/iotlab_upat_5/venv/bin/python`
 Significance: This confirms the shell is using the isolated Python interpreter located within the project's local venv directory, rather than the global system-wide Python. 
 
-**RQ26: In one paragraph: what problem does a venv solve?**  
+**RQ27: In one paragraph: what problem does a venv solve?**  
 Ans: A venv solves the problem of dependency conflicts between different python projects by creating isolated environments where each project can have its own set of installed packages and specific versions, without interfering with the global Python installation or other projects.
 
-**RQ27: What dependencies did you include and why? If you use argaprse do you need to include the requirements.txt, if not why?**  
+**RQ28: What dependencies did you include and why? If you use argaprse do you need to include the requirements.txt, if not why?**  
 Ans: Since we are testing the venv we download the click module for a better structured CLI. We add the click version in the requirements.txt file (click==8.1.7). The argaprse package comes installed with any python version >=3.2, so we do not need to include it in the requirents.txt file.
 
-**RQ28: What would happen if different teams used different dependency versions?**  
+**RQ29: What would happen if different teams used different dependency versions?**  
 Ans: Using different dependency versions across teams leads to "broken" code where specific features or libraries might be missing or incompatible, causing the program to fail. That's why we use virtual environments, in order to isolate each project's dependencies, ensuring that every team member runs the exact same environment and preventing conflicts with system-wide packages.
 
-**RQ29: How can you verify you installed packages into the venv (not the system Python)? Give one command and explain what you look for.**  
+**RQ30: How can you verify you installed packages into the venv (not the system Python)? Give one command and explain what you look for.**  
 Ans: Run pip list after activating your virtual environment. If the packages you installed appear in the output, they are installed in the venv. 
 
 
@@ -180,7 +245,7 @@ Ans: The deposit_total starts at 1 and ends at 5, because we started with a star
 Ans: Via the event_type field. Heartbeat records have "event_type": "heartbeat" and deposit records have "event_type": "deposit".
 
 **RQ48: For each invalid command, show the error message and exit code.**  
-Ans: We performed two tests.
+Ans: We performed two tests. After each test we got the exit code by using the command `echo $LASTEXITCODE`.
 The first test was:
 `python event_generator.py --device-id wastebin-01 --event-type heartbeet --count 5 --interval 0.1 --out test.jsonl --starting-total 0 --verbose`
 
@@ -227,3 +292,8 @@ Ans:
 4. Failure to activate the virtual environment: It instructs the user to create the venv (`python -m venv venv`) but skips the critical activation step (e.g., `source venv/bin/activate`), which will lead to incorrect global package installations.
 
 5. Ambiguous expected output: It vaguely states "You can check the file" without specifying the file's name, its location, or what a successful execution actually looks like.
+
+**RQ52: List improvements (if any) you made to your own labs/lab01/README.md as a result of this exercise, and explain why each improvement matters for reproducibility.**
+Ans: 
+1. Added a clone command to the README.
+2. Added navigation instructions to the README.
