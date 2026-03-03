@@ -13,6 +13,3 @@ pir.when_motion = motion_function
 pir.when_no_motion = no_motion_function
 
 pause()  
-
-if __name__ == "__main__":
-    main()
