@@ -48,7 +48,7 @@ def generate_events(device_id, pin, sample_interval, cooldown, min_high, duratio
                 for ev in interp.update(raw, now):
                     timestamp = utc_now_iso()
                     
-                    if ev['kind'] == 'high':
+                    if ev['kind'] == 'motion_detected':
                         deposit_total += 1
                         event_type = 'deposit'
                         record = {
