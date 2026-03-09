@@ -108,7 +108,7 @@ Ans:
 ```bash
 python3 pir_smoke_test.py
 ```
-![alt text](image.png)
+![alt text](images/smoke_test_output.png)
 
 We had a problem using the python venv. So, we disabled it, as instructed by the Lab Assistants.
 
@@ -159,7 +159,7 @@ Ans: Yes, inexpensive PIR sensors occasionally have brief signal spikes or false
 **RQ17: Compute and report latency for 3 records.**
 
 Ans: Latency is the difference between the `event_time` and the `ingest_time`. Since both timestamps are identical at creation in our local generation script, the calculated latency is 0 ms, meaning it is close to microseconds.
-![alt text](1000004199.png)
+![alt text](images/latency_records.png)
 
 **RQ18: In your own words, explain how your interpreter prevents “motion detected” spam.**
 
@@ -171,17 +171,17 @@ Ans: The `PirInterpreter` implements three software controls:
 
 **RQ19: Show a short output snippet of pir_print.py**
 
-Ans:![alt text](image-3.png)
+Ans:![alt text](images/pir_print_output.png)
 
 
 **RQ20: Show a short output snippet of pir_event_logger.py**
 
-Ans:![alt text](image-2.png)
+Ans:![alt text](images/pir_logger_output.png)
 
 
 **RQ21: Provide a screenshot of your board.**
 
-<img width="1913" height="784" alt="image" src="https://github.com/user-attachments/assets/86bcf5b5-71ca-4b44-b270-02f934736153" />
+<img width="1913" height="784" alt="image" src="images/kanban_board.png" />
 
 
 **RQ22: Give one concrete example of how the board can prevent a coordination bug (e.g., wrong pin, duplicated work, missed experiment).**
