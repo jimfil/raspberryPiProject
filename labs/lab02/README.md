@@ -76,3 +76,6 @@ Ans: /home/iotlab-upat-5/raspeberryPiProject/labs/lab02/venv/bin/python3
 
 This proves that we are using the venv because the path points to the venv directory.
 
+**RQ21: Provide a screenshot of your board.**
+
+![alt text](image-1.png)
