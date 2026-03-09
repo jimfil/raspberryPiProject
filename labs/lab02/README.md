@@ -76,3 +76,40 @@ Ans: /home/iotlab-upat-5/raspeberryPiProject/labs/lab02/venv/bin/python3
 
 This proves that we are using the venv because the path points to the venv directory.
 
+
+**RQ14: What sample interval did you choose and why? (Use your knob experiments to justify it.)**
+
+Ans: We chose a sample interval of `0.1` seconds. Based on our knob experiments, the minimum time the sensor's output remains `HIGH` after detecting motion is approximately 1.37 seconds. A sampling rate of 0.1s guarantees that we read the sensor state multiple times during the shortest possible `HIGH` pulse, ensuring we never miss a motion event without unnecessarily overloading the Raspberry Pi's CPU.
+
+
+**RQ15: What cooldown did you choose and why?**
+
+Ans: We chose a cooldown of `5.0` seconds. In the context of a smart wastebin, when an individual approaches to deposit an item, they will likely trigger the sensor continuously for a few seconds. The cooldown prevents the system from generating multiple "deposit" events for a single interaction by forcing it to ignore subsequent motion triggers until the person has had time to walk away.
+
+
+**RQ16: Did you observe brief spikes? What min_high did you choose (or why did you keep it 0)?**
+
+Ans: Yes, inexpensive PIR sensors occasionally have brief signal spikes or false positives due to electrical noise or rapid lighting changes. We chose a `min_high` of `0.2` seconds. This value successfully filters out instantaneous noise spikes, ensuring we only register an event if the sensor maintains a `HIGH` signal for a sustained period indicating genuine physical motion.
+
+
+**RQ17: Compute and report latency for 3 records.**
+
+Ans: Latency is the difference between the `event_time` and the `ingest_time`. Since both timestamps are identical at creation in our local generation script, the calculated latency is 0 ms, meaning it is close to microseconds.
+![alt text](1000004199.png)
+
+**RQ18: In your own words, explain how your interpreter prevents “motion detected” spam.**
+
+Ans: The `PirInterpreter` implements three software controls:
+1. State-Tracking: Uses a boolean property `emitted_for_this_high` which flips to `True` when an event is triggered during a continuous `HIGH` state. This prevents endless "motion detected" events while someone remains in front of the sensor.
+2. Cooldown Period: Analyzes the delta time since the last emitted event against a configured cooldown, ignoring subsequent triggered motions until the cooldown duration has elapsed.
+3. Minimum High Duration: Enforces that the sensor pulse must remain persistently `HIGH` for `min_high_s` before an event evaluates to `True`, protecting against instantaneous noise.
+
+
+**RQ19: Show a short output snippet of pir_print.py**
+
+Ans:![alt text](image-1.png)
+
+
+**RQ20: Show a short output snippet of pir_event_logger.py**
+
+Ans:![alt text](image-2.png)
