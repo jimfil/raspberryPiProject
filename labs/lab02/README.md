@@ -112,7 +112,8 @@ Ans:![alt text](image-2.png)
 
 **RQ21: Provide a screenshot of your board.**
 
-![alt text](image-1.png)
+<img width="1913" height="784" alt="image" src="https://github.com/user-attachments/assets/86bcf5b5-71ca-4b44-b270-02f934736153" />
+
 
 **RQ22: Give one concrete example of how the board can prevent a coordination bug (e.g., wrong pin, duplicated work, missed experiment).**
 
