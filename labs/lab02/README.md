@@ -1,3 +1,67 @@
+# Section A: Runbook (How to run our code)
+
+## Clone the Repository
+If you haven't already cloned the repository, do so first:
+```bash
+git clone https://github.com/jimfil/raspberryPiProject.git
+```
+
+## Hardware Setup
+Before running the code, ensure the PIR sensor is wired correctly to the Raspberry Pi:
+- **VCC** -> Pin 2 (5V)
+- **GND** -> Pin 6 (GND)
+- **OUT** -> Pin 11 (GPIO17)
+
+## Environment Setup / Activation (venv)
+Navigate to the `labs/lab02` directory:
+```bash
+cd raspberryPiProject/labs/lab02
+```
+
+## Dependency Installation
+Install the required packages using the `requirements.txt` file (includes `gpiozero` and `click`):
+```bash
+pip install -r requirements.txt
+```
+
+## Exact Commands (copy/paste)
+To run the hardware smoke test (verifies sensor is connected and working):
+```bash
+python3 pir_smoke_test.py
+```
+
+To print motion events in a human-readable format (e.g. for 60 seconds):
+```bash
+python3 pir_print.py --pin 17 --sample-interval 0.1 --cooldown 5.0 --min-high 0.2 --duration 60.0
+```
+
+To log motion events to a JSON Lines file (`motion_events.log`):
+```bash
+python3 pir_event_logger.py --device-id pir-01 --pin 17 --sample-interval 0.1 --cooldown 5.0 --min-high 0.2 --duration 60.0 --out motion_events.log --verbose
+```
+
+To see all available CLI options for the logger:
+```bash
+python3 pir_event_logger.py --help
+```
+
+## Expected Outputs
+For `pir_print.py`, you should see output similar to:
+```text
+[print] pin=17 interval=0.1s cooldown=5.0s min_high=0.2s
+t=   1.40s motion_detected
+t=   8.50s motion_detected
+```
+
+For `pir_event_logger.py`, it will output JSON Lines to the specified file while printing verbose info to the console. Example contents of `motion_events.log`:
+```json
+{"event_time": "2026-03-09T18:50:24.000Z", "ingest_time": "2026-03-09T18:50:24.000Z", "device_id": "pir-01", "event_type": "deposit", "seq": 1, "run_id": "9512b3cb-c6a6-42c6-b34d-593e66506c03", "deposit_delta": 1, "deposit_total": 1}
+```
+
+---
+
+## Section B: Report
+
 **RQ1: Is a PIR sensor active or passive? Contact or no-contact? Explain in your own words.**
 
 Ans: Passive, no-contact because it detects the infrared radiation emitted by objects, rather than emitting its own signal.
