@@ -119,7 +119,7 @@ Ans: The `PirInterpreter` implements three software controls:
 
 **RQ19: Show a short output snippet of pir_print.py**
 
-Ans:![alt text](image-1.png)
+Ans:![alt text](image-3.png)
 
 
 **RQ20: Show a short output snippet of pir_event_logger.py**
