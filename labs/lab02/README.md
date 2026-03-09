@@ -77,6 +77,18 @@ Ans: /home/iotlab-upat-5/raspeberryPiProject/labs/lab02/venv/bin/python3
 This proves that we are using the venv because the path points to the venv directory.
 
 
+**RQ21: Provide a screenshot of your board.**
+
+![alt text](image-1.png)
+
+**RQ22: Give one concrete example of how the board can prevent a coordination bug (e.g., wrong pin, duplicated work, missed experiment).**
+
+Ans: The board prevents duplicated work by providing a visual reference of which pins are being used, so that team members do not use the same pins for different purposes.     
+
+**RQ23: Which card can be a “critical path” blocker for your team, and why?**
+
+Ans: The "Run the experiment" card is a critical path blocker because it requires the completion of all previous steps, including the hardware setup and the software development. If this card is not completed, the experiment cannot be run, and the lab cannot be completed.    
+
 **RQ14: What sample interval did you choose and why? (Use your knob experiments to justify it.)**
 
 Ans: We chose a sample interval of `0.1` seconds. Based on our knob experiments, the minimum time the sensor's output remains `HIGH` after detecting motion is approximately 1.37 seconds. A sampling rate of 0.1s guarantees that we read the sensor state multiple times during the shortest possible `HIGH` pulse, ensuring we never miss a motion event without unnecessarily overloading the Raspberry Pi's CPU.
