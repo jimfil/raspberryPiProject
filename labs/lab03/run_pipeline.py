@@ -155,7 +155,8 @@ def main(
                     f"consumed={metrics['consumed']} "
                     f"dropped={metrics['dropped']} "
                     f"queue={event_q.qsize()} "
-                    f"max_queue={metrics['max_queue']}"
+                    f"max_queue={metrics['max_queue']}",
+                    flush=True
                 )
             time.sleep(1.0)
     except KeyboardInterrupt:
