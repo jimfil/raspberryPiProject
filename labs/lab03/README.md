@@ -31,3 +31,21 @@ Ans: Because data acquisition systems usually depend on continuous streams of da
 Ans: Based on the pipeline flow, the system architecture represents an ETL (Extract → Transform → Load) model. The raw data is first extracted from the PIR sensor (Extract). Then, it is immediately processed by the interpreter to detect events before being placed in the queue (Transform). Finally, the consumer thread writes these processed event records to the JSONL event log on the disk (Load). Because the transformation happens before the data is written to storage, it is an ETL approach rather than ELT.
 
 
+**RQ10: Explain the responsibility of the producer in one sentence.**
+
+Ans: The responsibility of the producer is producing events slower or with the same speed that the consumer processes them so that the queue doesn't overflow and create backpressure problems.
+
+
+**RQ11: Explain the responsibility of the consumer in one sentence.**
+
+Ans: The responsibility of the consumer is processing events faster or with the same speed that the producer is generating them so that the queue doesn't overflow and create backpressure problems.
+
+
+**RQ12: Show two example JSONL records from your output and explain their fields briefly.**
+
+Ans: 
+
+
+**RQ13: What does pipeline_latency_ms mean in your system?**
+
+Ans: It means the time between producing and processing of an event.
