@@ -51,7 +51,7 @@ Ans: The responsibility of the consumer is processing events faster or with the 
 
 **RQ12: Show two example JSONL records from your output and explain their fields briefly.**
 
-Ans: 
+Ans: "event_time" is the time when the event was produced, "device_id" is the unique identifier of the device, "event_type" is the type of the event, "motion_state" is the state of the motion, "seq" is the sequence number of the event, "run_id" is the unique identifier of the run, "ingest_time" is the time when the event was ingested, "pipeline_latency_ms" is the latency of the pipeline.
 ![alt text](images/jsonl_output.png)
 
 **RQ13: What does pipeline_latency_ms mean in your system?**
