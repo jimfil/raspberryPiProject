@@ -1,3 +1,70 @@
+# Section A: Runbook (How to run our code)
+
+## Clone the Repository
+If you haven't already cloned the repository, do so first:
+```bash
+git clone https://github.com/jimfil/raspberryPiProject.git
+```
+
+## Hardware Setup
+Before running the code, ensure the PIR sensor is wired correctly to the Raspberry Pi:
+- **VCC** -> Pin 2 (5V)
+- **GND** -> Pin 6 (GND)
+- **OUT** -> Pin 11 (GPIO17)
+
+## Environment Setup / Activation (venv)
+Navigate to the `labs/lab03` directory:
+```bash
+cd raspberryPiProject/labs/lab03
+```
+
+## Dependency Installation
+Install the required packages using the `requirements.txt` file (includes `gpiozero` and `click`):
+```bash
+pip install -r requirements.txt
+```
+
+## Exact Commands (copy/paste)
+
+To run the concurrent pipeline normally (without artificial delay):
+```bash
+python run_pipeline.py --device-id pir-01 --pin 17 --sample-interval 0.1 --cooldown 5.0 --min-high 0.2 --queue-size 100 --consumer-delay 0.0 --duration 60.0 --out motion_pipeline.jsonl --verbose
+```
+
+To run the concurrent pipeline simulating a **slow consumer** (which tests the queue backpressure limit):
+```bash
+python run_pipeline.py --device-id pir-01 --pin 17 --sample-interval 0.1 --cooldown 5.0 --min-high 0.2 --queue-size 3 --consumer-delay 0.5 --duration 60.0 --out motion_pipeline_slow.jsonl --verbose
+```
+
+To see all available CLI options for the pipeline:
+```bash
+python run_pipeline.py --help
+```
+
+## Expected Outputs
+
+For a normal execution of `run_pipeline.py`, you should see status lines output to the console every second. The producer and consumer should remain perfectly in sync with 0 queue and 0 dropped events:
+```text
+[status] produced=0 consumed=0 dropped=0 queue=0 max_queue=0
+[status] produced=1 consumed=1 dropped=0 queue=0 max_queue=0
+```
+
+For the **slow consumer** experiment, the system may begin to experience backpressure. You should see `queue` and `max_queue` rise, eventually leading to `dropped` events when the queue reaches its limit (e.g., 3):
+```text
+[status] produced=4 consumed=1 dropped=0 queue=3 max_queue=3
+[status] produced=5 consumed=2 dropped=1 queue=3 max_queue=3
+```
+
+A clean shutdown message will appear when the timer expires or `Ctrl+C` is pressed:
+```text
+[main] Ctrl-C: stopping...
+Please wait for the consumer to stop!
+```
+
+---
+
+## Section B: Report
+
 **RQ1: Which lecture pipeline phases do you believe you had already implemented in Lab 02?**
 
 Ans: Based on the lab description, the pipeline phases already implemented in Lab 02 were reading the raw sensor input (acquisition), interpreting the signal behavior to create event records (processing/packaging), and writing the output. While these core phases were present, they were executed in a synchronous, tightly coupled loop (read → interpret → write), rather than the decoupled Producer-Queue-Consumer architecture introduced in the current lab.
