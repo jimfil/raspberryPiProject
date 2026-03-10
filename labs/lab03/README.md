@@ -52,7 +52,7 @@ Ans: The responsibility of the consumer is processing events faster or with the 
 **RQ12: Show two example JSONL records from your output and explain their fields briefly.**
 
 Ans: 
-
+![alt text](images/jsonl_output.png)
 
 **RQ13: What does pipeline_latency_ms mean in your system?**
 
