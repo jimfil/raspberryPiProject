@@ -30,6 +30,14 @@ Ans: Because data acquisition systems usually depend on continuous streams of da
 
 Ans: Based on the pipeline flow, the system architecture represents an ETL (Extract → Transform → Load) model. The raw data is first extracted from the PIR sensor (Extract). Then, it is immediately processed by the interpreter to detect events before being placed in the queue (Transform). Finally, the consumer thread writes these processed event records to the JSONL event log on the disk (Load). Because the transformation happens before the data is written to storage, it is an ETL approach rather than ELT.
 
+**RQ8: What transformation already happens before your data is written to disk?**
+
+Ans: Before the data is written to the disk, the raw binary signal (0s and 1s) from the PIR sensor undergoes significant transformation and enrichment. First, the PirInterpreter processes the continuous raw signal, applying logic (such as minimum high time and cooldown limits) to transform it into distinct, meaningful "motion events." Second, these events are enriched with metadata to form a structured record. This includes adding a unique run identifier (run_id), a sequence number (seq), precise timestamps (event_time and ingest_time), and dynamically calculating the pipeline_latency_ms. Only after this structural transformation and enrichment is the data written to the JSONL log.
+
+
+**RQ9: Give one example of a transformation that could be moved later to another stage of the system.**
+
+Ans: The transformation that could be moved later to another stage of the system is the enrichment of the events with metadata. This could be moved to the consumer stage, where the events are processed and written to the disk.
 
 **RQ10: Explain the responsibility of the producer in one sentence.**
 
