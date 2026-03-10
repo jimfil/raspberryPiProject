@@ -137,6 +137,16 @@ def main(
         args=(event_q, sampler, interp, device_id, sample_interval, metrics, stop_flag),
         daemon=True,
     )
+    producer_t2 = threading.Thread(
+        target=producer_loop,
+        args=(event_q, sampler, interp, device_id, sample_interval, metrics, stop_flag),
+        daemon=True,
+    )
+    producer_t3 = threading.Thread(
+        target=producer_loop,
+        args=(event_q, sampler, interp, device_id, sample_interval, metrics, stop_flag),
+        daemon=True,
+    )
     consumer_t = threading.Thread(
         target=consumer_loop,
         args=(event_q, out, consumer_delay, metrics, stop_flag),
@@ -144,6 +154,8 @@ def main(
     )
 
     producer_t.start()
+    producer_t2.start()
+    producer_t3.start()
     consumer_t.start()
 
     start_t = time.time()
