@@ -57,3 +57,35 @@ Ans:
 **RQ13: What does pipeline_latency_ms mean in your system?**
 
 Ans: It means the time between producing and processing of an event.
+
+**RQ14: What changed when you introduced --consumer-delay 0.5?**
+
+Ans: The consumer thread now sleeps for 0.5 seconds after processing an event. We cannot observe any changes in the output file because the producer produces an event every 5 seconds.
+
+**RQ15: Did the queue absorb the slowdown? Explain briefly using your own observations.**
+
+Ans: Yes, it did. When the producer was outrunning the consumer, the queue was filling up. In a real-time system without a queue, this would cause the producer to slow down or stop, which is not ideal.
+
+**RQ16: What is one clear sign, from your terminal status output, that the producer is outrunning the consumer?**
+
+Ans: When the queue is filling up, then the producer is outrunning the consumer.
+
+**RQ17: Why is a bounded queue more informative than an unbounded queue during overload?**
+
+Ans: A bounded queue is more informative than an unbounded queue during overload because it shows the maximum size of the queue, which can help identify the source of the problem and take appropriate action.
+
+**RQ18: Why should status lines stay in the terminal instead of being mixed into the JSONL file?**
+
+Ans: The status lines are important for debugging and monitoring the system, so they should stay in the terminal.
+
+**RQ19: Which field lets you group records from the same program execution, and why is that useful?**
+
+Ans: The "device_id" and the "run_id" fields lets you group records from the same program execution, and it is useful because it helps identify the source of the records.
+
+**RQ20: Why would an unbounded queue be dangerous on a Raspberry Pi?**
+
+Ans: An unbounded queue would be dangerous on a Raspberry Pi because it would cause the system to run out of memory, which could lead to a crash.
+
+**RQ21: If you later replaced the JSONL writer with another output component, which part of your system could stay almost unchanged and why?**
+
+Ans: The sampler and the interpreter could stay almost unchanged because they are not dependent on the output component. Then the producer and the consumer would need to be changed to work with the new output component. 
