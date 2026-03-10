@@ -69,9 +69,6 @@ def consumer_loop(
 ):
     with open(out_file, "a") as f:
         while not stop_flag["stop"] or not event_q.empty():
-            if consumer_delay > 0:
-                time.sleep(consumer_delay)
-
             try:
                 record = event_q.get(timeout=0.5)
             except Empty:
@@ -95,6 +92,9 @@ def consumer_loop(
                 metrics["max_queue"] = current_qsize
                 
             event_q.task_done()
+
+            if consumer_delay > 0:
+                time.sleep(consumer_delay)
 
 
 @click.command()
