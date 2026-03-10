@@ -164,6 +164,7 @@ def main(
     finally:
         stop_flag["stop"] = True
         producer_t.join()
+        print("Please wait for the consumer to stop!")
         consumer_t.join()
 
 
