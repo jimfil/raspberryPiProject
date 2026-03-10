@@ -52,7 +52,7 @@ For a normal execution of `run_pipeline.py`, you should see status lines output 
 For the **slow consumer** experiment, the system may begin to experience backpressure. You should see `queue` and `max_queue` rise, eventually leading to `dropped` events when the queue reaches its limit (e.g., 3):
 ```text
 [status] produced=4 consumed=1 dropped=0 queue=3 max_queue=3
-[status] produced=5 consumed=2 dropped=1 queue=3 max_queue=3
+[status] produced=5 consumed=1 dropped=1 queue=3 max_queue=3
 ```
 
 A clean shutdown message will appear when the timer expires or `Ctrl+C` is pressed:
