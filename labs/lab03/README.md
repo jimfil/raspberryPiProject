@@ -26,5 +26,8 @@ Ans: Backpressure is a flow control mechanism that helps control information bet
 
 Ans: Because data acquisition systems usually depend on continuous streams of data to perform like they're intended to, so a slow writer could cause the queues that help store data to overflow, losing valuable information in the process, like creating a bottleneck on incoming information.
 
+**RQ7: Is your current edge pipeline closer to ETL or ELT? Explain briefly.**
+
+Ans: Based on the pipeline flow, the system architecture represents an ETL (Extract → Transform → Load) model. The raw data is first extracted from the PIR sensor (Extract). Then, it is immediately processed by the interpreter to detect events before being placed in the queue (Transform). Finally, the consumer thread writes these processed event records to the JSONL event log on the disk (Load). Because the transformation happens before the data is written to storage, it is an ETL approach rather than ELT.
 
 
