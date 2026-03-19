@@ -16,7 +16,7 @@ By leveraging **Raspberry Pi** and **Python**, we are developing a system design
 ### Repository Structure
 
 * **`/labs`**: Contains the code and reports for our weekly lab assignments.
-* *(More directories will be added as the project progresses)*
+* **`/smartWasteBin`**: Contains our smart waste bin project (in-progress).
 
 ## Getting Started
 
