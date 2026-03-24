@@ -40,19 +40,22 @@ Ans:
 
 **RQ9: Why are resource limits important on edge devices in general?**
 
-Ans: 
+Ans: Edge devices by nature are resource-constrained devices, so it's important to set resource limits to prevent them from consuming too much memory or CPU, which could cause them to crash or become unresponsive.
 
 **RQ10: What is the advantage of writing a docker-compose.yml instead of using docker run with flags?**
 
-Ans: 
+Ans: It allows us to run the entire configuration in a single command, and it's easier to manage and update the configuration.
+
 
 **RQ11: What is the difference between a bind mount (-v $(pwd)/output:/data) and a named volume (pipeline-data:/data)?**
 
-Ans: 
+Ans: The diference is that with a bind mount we map the output/ to data/, while with named volume the docker chooses a place inside the disk without us choosing.
+
 
 **RQ12: What does restart: unless-stopped do and why does it matter for an edge device?**
 
-Ans: 
+Ans: It ensures continuous operation in the event of a system crash or restart unless it is stopped by a user.
+
 **RQ13: What does a virtual environment isolate, and what does it not isolate?**
 
 Ans: 
