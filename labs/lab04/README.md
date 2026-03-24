@@ -1,7 +1,53 @@
 # Section A: Runbook (How to run our code)
 
 
-*(Add instructions on how to build and run the pipeline here)*
+### Prerequisites
+- Docker and Docker Compose installed on the host system (e.g., Raspberry Pi).
+- The host must have the physical GPIO hardware available.
+
+### Running with Docker Compose (Recommended)
+1. **Navigate to the `lab04` directory**:
+   ```bash
+   cd labs/lab04
+   ```
+
+2. **Build and start the pipeline**:
+   Using Docker Compose will automatically build the image if needed, mount the required output volumes, apply resource limits, and provide hardware access (`/dev/gpiomem` and `/dev/gpiochip0`). Run it in detached mode:
+   ```bash
+   docker compose up -d --build
+   ```
+
+3. **Check the logs**:
+   To see the live output from the pipeline (consumer and producer logs):
+   ```bash
+   docker compose logs -f
+   ```
+
+4. **Stop the pipeline**:
+   To gracefully stop and remove the container:
+   ```bash
+   docker compose down
+   ```
+
+### Running with standard Docker commands
+If you prefer not to use `docker-compose`, you can build and run using `docker run`:
+
+1. **Build the image**:
+   ```bash
+   docker build -t smart-wastebin-pipeline:latest .
+   ```
+
+2. **Run the container**:
+   ```bash
+   docker run -d \
+     --name pipeline \
+     --privileged \
+     --device /dev/gpiomem0:/dev/gpiomem \
+     --device /dev/gpiochip0:/dev/gpiochip0 \
+     -v pipeline-data:/data \
+     --memory=128m \
+     --cpus="0.5" \
+   ```
 
 ## Section B: Report
 
