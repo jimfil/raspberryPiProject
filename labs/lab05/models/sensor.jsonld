@@ -13,7 +13,6 @@
   "description": "HC-SR501 passive infrared (PIR) motion sensor mounted on wastebin bin-01 in the lab environment. Detects motion by sensing changes in infrared radiation emitted by warm bodies within its detection cone.",
   "manufacturer": "Generic / HICHIP",
   "model": "HC-SR501",
-
   "sosa:observes": "sosa:Motion",
   "ssn:detects": {
     "@type": "ssn:Stimulus",
@@ -21,7 +20,7 @@
   },
   "pipeline:gpioPin": {
     "@type": "xsd:integer",
-    "@value": 4
+    "@value": 7
   },
   "pipeline:operatingVoltage": {
     "@type": "xsd:string",
@@ -33,11 +32,11 @@
   },
   "pipeline:detectionAngle": {
     "@type": "xsd:string",
-    "@value": "110 degrees cone"
+    "@value": "less than 120 degrees cone"
   },
   "pipeline:cooldownSeconds": {
     "@type": "xsd:float",
-    "@value": 2.0
+    "@value": 5.0
   },
   "pipeline:minHighSeconds": {
     "@type": "xsd:float",
@@ -45,20 +44,15 @@
   },
   "pipeline:operatingTemperature": {
     "@type": "xsd:string",
-    "@value": "-20°C to +80°C"
+    "@value": "-15°C to +70°C"
   },
   "pipeline:indoorOutdoor": "indoor",
-
-  "ssn:deployedSystem": {
-    "@id": "urn:wastebin:bin-01"
-  },
   "pipeline:mountedOn": {
     "@id": "urn:wastebin:bin-01"
   },
   "pipeline:deployedIn": {
     "@id": "urn:env:kypes-02"
   },
-
   "installationDate": {
     "@type": "xsd:date",
     "@value": "2026-02-01"
