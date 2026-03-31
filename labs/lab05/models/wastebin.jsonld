@@ -1,0 +1,45 @@
+{
+    "@context": {
+        "@vocab": "https://schema.org/",
+        "sosa": "http://www.w3.org/ns/sosa/",
+        "saref": "https://saref.etsi.org/core/",
+        "bot": "https://w3id.org/bot#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "pipeline": "https://github.com/jimfil/raspberryPiProject/blob/main/docs/ontology.md#"
+    },
+    "@id": "urn:wastebin:bin-01",
+    "@type": "saref:Device",
+    "name": "Smart Wastebin Unit 01",
+    "description": "An IoT-enabled outdoor waste collection bin located in kypes-02, University of Patras. Equipped with a PIR motion sensor to detect deposit activity.",
+    "pipeline:capacityLitres": {
+        "@type": "xsd:float",
+        "@value": 60.0
+    },
+    "pipeline:material": "HDPE plastic",
+    "pipeline:color": "grey",
+    "pipeline:heightCm": {
+        "@type": "xsd:float",
+        "@value": 75.0
+    },
+    "pipeline:diameterCm": {
+        "@type": "xsd:float",
+        "@value": 40.0
+    },
+    "pipeline:wasteType": "general",
+    "pipeline:collectionZone": "Zone-A",
+    "pipeline:collectionRoute": "Route-3",
+    "pipeline:status": "active",
+    "sosa:hosts": [
+        {
+            "@id": "urn:dev:team05:pir-01"
+        }
+    ],
+    "pipeline:locatedIn": {
+        "@id": "urn:env:kypes-02"
+    },
+    "identifier": "bin-01",
+    "installationDate": {
+        "@type": "xsd:date",
+        "@value": "2026-02-01"
+    }
+}
