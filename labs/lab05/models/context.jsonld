@@ -2,6 +2,8 @@
     "@context": {
         "@vocab": "https://schema.org/",
         "sosa": "http://www.w3.org/ns/sosa/",
+        "ssn": "http://www.w3.org/ns/ssn/",
+        "saref": "https://saref.etsi.org/core/",
         "xsd": "http://www.w3.org/2001/XMLSchema#",
         "pipeline": "https://github.com/jimfil/raspberryPiProject/blob/main/docs/ontology.md#",
 
@@ -45,6 +47,41 @@
         "locatedIn": {
             "@id": "pipeline:locatedIn",
             "@type": "@id"
-        }
+        },
+
+        "mountedOn": {
+            "@id": "pipeline:mountedOn",
+            "@type": "@id"
+        },
+        "deployedIn": {
+            "@id": "pipeline:deployedIn",
+            "@type": "@id"
+        },
+        "gpioPin": {
+            "@id": "pipeline:gpioPin",
+            "@type": "xsd:integer"
+        },
+        "operatingVoltage": "pipeline:operatingVoltage",
+        "detectionRange": "pipeline:detectionRange",
+        "detectionAngle": "pipeline:detectionAngle",
+        "cooldownSeconds": {
+            "@id": "pipeline:cooldownSeconds",
+            "@type": "xsd:float"
+        },
+        "minHighSeconds": {
+            "@id": "pipeline:minHighSeconds",
+            "@type": "xsd:float"
+        },
+        "operatingTemperature": "pipeline:operatingTemperature",
+        "indoorOutdoor": "pipeline:indoorOutdoor",
+        "status": "pipeline:status",
+
+        "installationDate": {
+            "@id": "schema:installationDate",
+            "@type": "xsd:date"
+        },
+        "identifier": "schema:identifier",
+        "manufacturer": "schema:manufacturer",
+        "model": "schema:model"
     }
 }
