@@ -1,33 +1,36 @@
 {
-  "@context": {
-    "@vocab": "https://schema.org/",
-    "bot": "https://w3id.org/bot#",
-    "xsd": "http://www.w3.org/2001/XMLSchema#",
-    "pipeline": "https://github.com/jimfil/raspberryPiProject/blob/main/docs/ontology.md#"
-  },
-  "@id": "urn:env:kypes-02",
-  "@type": "bot:Space",
-  "name": "kypes-02",
-  "description": "kypes-02, Department of Electrical and Computer Engineering, University of Patras, Greece. An indoor lab space used for IoT and embedded systems experiments.",
-
-  "pipeline:roomNumber": "101",
-  "pipeline:buildingName": "Engineering Building A",
-  "pipeline:floorNumber": {
-    "@type": "xsd:integer",
-    "@value": 1
-  },
-  "pipeline:university": "University of Patras",
-  "pipeline:department": "Electrical and Computer Engineering",
-  "address": {
-    "@type": "PostalAddress",
-    "addressLocality": "Patras",
-    "addressCountry": "GR"
-  },
-  "pipeline:indoorOutdoor": "indoor",
-  "pipeline:trafficLevel": "medium",
-
-  "pipeline:contains": [
-    { "@id": "urn:wastebin:bin-01" },
-    { "@id": "urn:dev:team05:pir-01" }
-  ]
+    "@context": {
+        "@vocab": "https://schema.org/",
+        "bot": "https://w3id.org/bot#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "pipeline": "https://github.com/jimfil/raspberryPiProject/blob/main/docs/ontology.md#"
+    },
+    "@id": "urn:env:kypes-02",
+    "@type": "bot:Space",
+    "name": "kypes-02",
+    "description": "kypes-02, Department of Electrical and Computer Engineering, University of Patras, Greece.",
+    "pipeline:roomName": "kypes",
+    "pipeline:roomNumber": "02",
+    "pipeline:buildingName": "Engineering Building A",
+    "pipeline:floorNumber": {
+        "@type": "xsd:integer",
+        "@value": 0
+    },
+    "pipeline:university": "University of Patras",
+    "pipeline:department": "Electrical and Computer Engineering",
+    "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Patras",
+        "addressCountry": "GR"
+    },
+    "pipeline:indoorOutdoor": "indoor",
+    "pipeline:trafficLevel": "medium",
+    "pipeline:contains": [
+        {
+            "@id": "urn:wastebin:bin-01"
+        },
+        {
+            "@id": "urn:dev:team05:pir-01"
+        }
+    ]
 }
