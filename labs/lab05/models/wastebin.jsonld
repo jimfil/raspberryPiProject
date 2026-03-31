@@ -11,19 +11,23 @@
     "@type": "saref:Device",
     "name": "Smart Wastebin Unit 01",
     "description": "An IoT-enabled outdoor waste collection bin located in kypes-02, University of Patras. Equipped with a PIR motion sensor to detect deposit activity.",
-    "pipeline:capacityLitres": {
+    "pipeline:capacityLt": {
         "@type": "xsd:float",
-        "@value": 60.0
+        "@value": 0.48
     },
     "pipeline:material": "HDPE plastic",
-    "pipeline:color": "grey",
+    "pipeline:color": "grey,blue",
+    "pipeline:lengthCm": {
+        "@type": "xsd:float",
+        "@value": 6.5
+    },
+    "pipeline:widthCm": {
+        "@type": "xsd:float",
+        "@value": 7
+    },
     "pipeline:heightCm": {
         "@type": "xsd:float",
-        "@value": 75.0
-    },
-    "pipeline:diameterCm": {
-        "@type": "xsd:float",
-        "@value": 40.0
+        "@value": 14.5
     },
     "pipeline:wasteType": "general",
     "pipeline:collectionZone": "Zone-A",
