@@ -9,7 +9,6 @@
     "@type": "bot:Space",
     "name": "kypes-02",
     "description": "kypes-02, Department of Electrical and Computer Engineering, University of Patras, Greece.",
-    
     "pipeline:university": {
         "@type": "Organization",
         "name": "University of Patras",
@@ -18,23 +17,20 @@
             "addressLocality": "Patras",
             "addressCountry": "GR"
         },
-        "department": {
+        "pipeline:department": {
             "@type": "Organization",
             "name": "Electrical and Computer Engineering",
-            "roomName": "kypes",
-            "roomNumber": "02",
-            "buildingName": "Engineering Building A",
-            "floorNumber": {
-                "@type": "xsd:integer",
-                "@value": 0
-            }
+            "pipeline:roomName": "kypes",
+            "pipeline:roomNumber": 2,
+            "pipeline:buildingName": "Engineering Building A",
+            "pipeline:floorNumber": 0
         }
     },
     "pipeline:indoorOutdoor": "indoor",
     "pipeline:trafficLevel": "medium",
     "pipeline:contains": [
         {
-            "@id": "urn:wastebin:bin-01"   
+            "@id": "urn:wastebin:bin-01"
         },
         {
             "@id": "urn:dev:team05:pir-01"
