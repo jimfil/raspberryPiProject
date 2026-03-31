@@ -30,9 +30,9 @@
         "@value": 14.5
     },
     "pipeline:wasteType": "general",
-    "pipeline:collectionZone": "Grond Level of ECE Building",
+    "pipeline:collectionZone": "Ground Level of ECE Building",
     "pipeline:collectionRoute": "Classrooms 6-8, CCCS 1-3(kypes aithouses)",
-    "pipeline:status": "active",
+    "pipeline:statusBin": "active",
     "sosa:hosts": [
         {
             "@id": "urn:dev:team05:pir-01"
