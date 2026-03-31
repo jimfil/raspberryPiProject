@@ -1,0 +1,50 @@
+{
+    "@context": {
+        "@vocab": "https://schema.org/",
+        "sosa": "http://www.w3.org/ns/sosa/",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "pipeline": "https://github.com/jimfil/raspberryPiProject/blob/main/docs/ontology.md#",
+
+        "event_time": {
+            "@id": "sosa:resultTime",
+            "@type": "xsd:dateTime"
+        },
+        "device_id": {
+            "@id": "sosa:madeBySensor",
+            "@type": "@id"
+        },
+        "event_type": "@type",
+        "motion_state": "pipeline:motionState",
+        "seq": {
+            "@id": "pipeline:sequenceNumber",
+            "@type": "xsd:integer"
+        },
+        "run_id": "pipeline:runId",
+        "ingest_time": {
+            "@id": "pipeline:ingestTime",
+            "@type": "xsd:dateTime"
+        },
+        "pipeline_latency_ms": {
+            "@id": "pipeline:pipelineLatencyMs",
+            "@type": "xsd:float"
+        },
+
+        "Observation": "sosa:Observation",
+        "Sensor": "sosa:Sensor",
+        "Wastebin": "pipeline:Wastebin",
+        "Environment": "pipeline:Environment",
+
+        "hasFeatureOfInterest": {
+            "@id": "sosa:hasFeatureOfInterest",
+            "@type": "@id"
+        },
+        "hostedBy": {
+            "@id": "sosa:isHostedBy",
+            "@type": "@id"
+        },
+        "locatedIn": {
+            "@id": "pipeline:locatedIn",
+            "@type": "@id"
+        }
+    }
+}
