@@ -3,6 +3,81 @@
 Base namespace: `https://github.com/jimfil/raspberryPiProject/blob/main/docs/ontology.md#`
 Prefix used in JSON-LD: `pipeline`
 
+## Entity Types
+
+The JSON-LD model files (`sensor.jsonld`, `wastebin.jsonld`, `environment.jsonld`) contain only instance data (plain key-value pairs). The RDF types for each entity are defined here.
+
+### urn:dev:team05:pir-01
+- **Model File:** `sensor.jsonld`
+- **RDF Type:** `sosa:Sensor`
+- **Description:** HC-SR501 PIR motion sensor
+
+### urn:wastebin:bin-01
+- **Model File:** `wastebin.jsonld`
+- **RDF Type:** `saref:Appliance`
+- **Description:** Smart wastebin unit
+
+### urn:env:kypes-02
+- **Model File:** `environment.jsonld`
+- **RDF Type:** `bot:Space`
+- **Description:** Deployment environment (room/space)
+
+### Detection stimulus (nested in sensor)
+- **RDF Type:** `ssn:Stimulus`
+- **Description:** Changes in infrared radiation from warm bodies detected by the PIR sensor
+
+### University (nested in environment)
+- **RDF Type:** `schema:Organization`
+- **Description:** The university where the system is deployed
+
+### Department (nested in environment)
+- **RDF Type:** `schema:Organization`
+- **Description:** The department within the university
+
+### Address (nested in environment)
+- **RDF Type:** `schema:PostalAddress`
+- **Description:** Postal address of the university
+
+---
+
+## Event Context Terms
+
+The following terms are aliased in `context.jsonld` for pipeline events. Their expected datatypes are defined here.
+
+### event_time
+- **Type:** `xsd:dateTime`
+- **Description:** Timestamp of the event
+
+### device_id
+- **Type:** `@id` (IRI reference)
+- **Description:** The sensor that produced the event
+
+### event_type
+- **Type:** `@type`
+- **Description:** RDF type of the event
+
+### motion_state
+- **Type:** `xsd:string`
+- **Description:** Motion state (e.g., HIGH / LOW)
+
+### seq
+- **Type:** `xsd:integer`
+- **Description:** Sequence number of the event
+
+### run_id
+- **Type:** `xsd:string`
+- **Description:** Identifier for the pipeline run
+
+### ingest_time
+- **Type:** `xsd:dateTime`
+- **Description:** Time the event was ingested
+
+### pipeline_latency_ms
+- **Type:** `xsd:float`
+- **Description:** Pipeline processing latency in ms
+
+---
+
 ## Pipeline Terms
 
 ### gpioPin

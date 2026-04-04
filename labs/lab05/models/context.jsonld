@@ -6,29 +6,15 @@
         "saref": "https://saref.etsi.org/core/",
         "bot": "https://w3id.org/bot#",
         "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "schema": "https://schema.org/",
         "pipeline": "https://github.com/jimfil/raspberryPiProject/blob/main/docs/ontology.md#",
-        "event_time": {
-            "@id": "sosa:resultTime",
-            "@type": "xsd:dateTime"
-        },
-        "device_id": {
-            "@id": "sosa:madeBySensor",
-            "@type": "@id"
-        },
+        "event_time": "sosa:resultTime",
+        "device_id": "sosa:madeBySensor",
         "event_type": "@type",
         "motion_state": "pipeline:motionState",
-        "seq": {
-            "@id": "pipeline:sequenceNumber",
-            "@type": "xsd:integer"
-        },
+        "seq": "pipeline:sequenceNumber",
         "run_id": "pipeline:runId",
-        "ingest_time": {
-            "@id": "pipeline:ingestTime",
-            "@type": "xsd:dateTime"
-        },
-        "pipeline_latency_ms": {
-            "@id": "pipeline:pipelineLatencyMs",
-            "@type": "xsd:float"
-        }
+        "ingest_time": "pipeline:ingestTime",
+        "pipeline_latency_ms": "pipeline:pipelineLatencyMs"
     }
 }

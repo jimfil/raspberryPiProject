@@ -1,12 +1,5 @@
 {
-  "@context": {
-    "@vocab": "https://schema.org/",
-    "sosa": "http://www.w3.org/ns/sosa/",
-    "ssn": "http://www.w3.org/ns/ssn/",
-    "saref": "https://saref.etsi.org/core/",
-    "xsd": "http://www.w3.org/2001/XMLSchema#",
-    "pipeline": "https://github.com/jimfil/raspberryPiProject/blob/main/docs/ontology.md#"
-  },
+  "@context": "context.jsonld",
   "@id": "urn:dev:team05:pir-01",
   "@type": "sosa:Sensor",
   "name": "HC-SR501 PIR Motion Sensor",
@@ -14,38 +7,14 @@
   "manufacturer": "Generic / HICHIP",
   "model": "HC-SR501",
   "sosa:observes": "sosa:Motion",
-  "ssn:detects": {
-    "@type": "ssn:Stimulus",
-    "description": "Changes in infrared radiation from warm bodies (humans) moving within the detection cone"
-  },
-  "pipeline:gpioPin": {
-    "@type": "xsd:integer",
-    "@value": 7
-  },
-  "pipeline:operatingVoltage": {
-    "@type": "xsd:string",
-    "@value": "5V DC"
-  },
-  "pipeline:detectionRange": {
-    "@type": "xsd:string",
-    "@value": "up to 7 metres"
-  },
-  "pipeline:detectionAngle": {
-    "@type": "xsd:string",
-    "@value": "less than 120 degrees cone"
-  },
-  "pipeline:cooldownSeconds": {
-    "@type": "xsd:float",
-    "@value": 5.0
-  },
-  "pipeline:minHighSeconds": {
-    "@type": "xsd:float",
-    "@value": 0.5
-  },
-  "pipeline:operatingTemperature": {
-    "@type": "xsd:string",
-    "@value": "-15°C to +70°C"
-  },
+  "ssn:detects": "Changes in infrared radiation from warm bodies (humans) moving within the detection cone",
+  "pipeline:gpioPin": 7,
+  "pipeline:operatingVoltage": "5V DC",
+  "pipeline:detectionRange": "up to 7 metres",
+  "pipeline:detectionAngle": "less than 120 degrees cone",
+  "pipeline:cooldownSeconds": 5.0,
+  "pipeline:minHighSeconds": 0.5,
+  "pipeline:operatingTemperature": "-15°C to +70°C",
   "pipeline:indoorOutdoor": "indoor",
   "pipeline:mountedOn": {
     "@id": "urn:wastebin:bin-01"
@@ -53,10 +22,7 @@
   "pipeline:deployedIn": {
     "@id": "urn:env:kypes-02"
   },
-  "installationDate": {
-    "@type": "xsd:date",
-    "@value": "2026-03-31"
-  },
+  "installationDate": "2026-03-31",
   "pipeline:statusSensor": "active",
   "identifier": "pir-01"
 }
