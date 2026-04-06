@@ -202,35 +202,35 @@ python run_pipeline.py \
 
 **RQ1: Which vocabularies/ontologies did you use across your models? Why did you choose them over alternatives?**
 
-Ans:
+Ans: We used SOSA/SSN (W3C) for sensor and observation terms because it is purpose-built for sensors. SAREF (ETSI) for the wastebin because it targets smart appliances and IoT devices. BOT (Building Topology Ontology) for the environment because it models physical spaces and containment. Schema.org for general fields like `name`, `description`, `manufacturer`, and `installationDate` because it is universally supported. We also created a custom `pipeline` namespace for project-specific terms that none of the above cover (e.g., `gpioPin`, `cooldownSeconds`).
 
 
 
 **RQ2: What properties did you include in your sensor description? Which ones came from standard vocabularies and which ones did you define yourself?**
 
-Ans:
+Ans: From standard vocabularies: `@type` (`sosa:Sensor`), `sosa:observes` (`sosa:Motion`), `ssn:detects`, and Schema.org fields like `name`, `description`, `manufacturer`, `model`, `identifier`, `installationDate`. Custom terms we defined ourselves: `pipeline:gpioPin`, `pipeline:operatingVoltage`, `pipeline:detectionRange`, `pipeline:detectionAngle`, `pipeline:cooldownSeconds`, `pipeline:minHighSeconds`, `pipeline:operatingTemperature`, `pipeline:indoorOutdoor`, `pipeline:statusSensor`, `pipeline:mountedOn`, `pipeline:deployedIn`. Standard terms cover identity and what the sensor observes; custom terms cover hardware specifics and deployment context.
 
 
 
 **RQ3: What properties did you include in your wastebin description? How did you decide what to include and what to leave out?**
 
-Ans:
+Ans: We included identity fields (`@id`, `name`, `description`, `identifier`, `installationDate`), physical properties (`capacityLt`, `material`, `color`, `lengthCm`, `widthCm`, `heightCm`), operational properties (`wasteType`, `collectionZone`, `collectionRoute`, `statusBin`), a sensor link (`sosa:hosts`), and a location link (`pipeline:locatedIn`). We included what a waste collection service or campus management system would need to know. We left out properties not yet implemented like `fillLevel`, `lidState`, `lastEmptied`, and `alertThreshold`, which will be added as the project evolves.
 
 
 
 **RQ4: How did you model the relationships between sensor, wastebin, and environment? Show the relevant @id references from each JSON-LD file.**
 
-Ans:
+Ans: The three entities form a bidirectional web of references. In `sensor.jsonld`: `"pipeline:mountedOn": {"@id": "urn:wastebin:bin-01"}` and `"pipeline:deployedIn": {"@id": "urn:env:kypes-02"}`. In `wastebin.jsonld`: `"sosa:hosts": [{"@id": "urn:dev:team05:pir-01"}]` and `"pipeline:locatedIn": {"@id": "urn:env:kypes-02"}`. In `environment.jsonld`: `"pipeline:contains": [{"@id": "urn:wastebin:bin-01"}, {"@id": "urn:dev:team05:pir-01"}]`. Starting from any entity, you can follow the links to discover every other entity.
 
 
 
 **RQ5: Were there properties you wanted to include but could not find a standard term for? How did you handle them?**
 
-Ans:
+Ans: Yes, most hardware-specific and deployment-specific properties lack standard vocabulary terms. For example `gpioPin` (no ontology models Raspberry Pi GPIO layouts), `cooldownSeconds` and `minHighSeconds` (pipeline parameters), `capacityLt`, `collectionZone`, `trafficLevel` (waste management domain). We handled them by creating the `pipeline` custom namespace and documenting each term in `docs/ontology.md` with its type and description.
 
 **RQ6: Show your complete @context and explain each mapping. For each field, why did you choose that particular standard term (or why did you define a custom one)?**
 
-Ans:
+Ans: The full `@context` is shown in Section A under `models/context.jsonld`. The key mappings: `event_time` → `sosa:resultTime` because SOSA defines it as the instant an observation result applies. `device_id` → `sosa:madeBySensor` because it is SOSA's standard property for linking an observation to its sensor. `event_type` → `@type` (JSON-LD's native type). `motion_state` → `pipeline:motionState` because no standard term distinguishes "detected" from "cleared" at this level. `seq` → `pipeline:sequenceNumber`, `run_id` → `pipeline:runId`, `ingest_time` → `pipeline:ingestTime`, `pipeline_latency_ms` → `pipeline:pipelineLatencyMs` are all pipeline-internal concepts with no standard equivalent. `sensor_ref`, `wastebin_ref`, `environment_ref` → custom IRI references because SOSA only provides `madeBySensor`, not general entity links.
 
 
 
