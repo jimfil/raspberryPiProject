@@ -196,7 +196,7 @@ python run_pipeline.py \
 ### Entity-Relationship Diagram
 
 ![alt text](images/erdiagram.png) 
-> **Figure 1 — Data-model entity-relationship diagram.**  Four entities participate in the model: the **PIR Sensor** (`sosa:Sensor`), the **Wastebin** (`saref:Appliance`), the **Environment** (`bot:Space`), and each **Observation** (`sosa:Observation`) emitted by the pipeline.
+> **Figure 1 — Data-model entity-relationship diagram.**  Four entities participate in the model: the **PIR Sensor** (`sosa:Sensor`), the **Wastebin** (`saref:Appliance`), the **Environment** (`bot:Space`), and each **Observation** (`sosa:Observation`) emitted by the pipeline.  Made with [mermaid.ai](https://www.mermaidchart.com/).
 ---
 ## Section B: Report
 
@@ -263,32 +263,38 @@ Ans: First of all, the microwave radar has a 360 degree angle range and can dete
 
 **RQ13: You need to add an ultrasonic distance sensor to measure bin fill level. What new JSON-LD files would you create? What would you change in existing files? What would stay the same?**
 
-Ans:
+Ans: We would create a new `models/ultrasonic_sensor.jsonld` with its own `@id`, `@type: "sosa:Sensor"`, `sosa:observes: "sosa:Distance"`, and some hardware properties. We would modify `wastebin.jsonld` to add the new sensor, modify `environment.jsonld` to add it to `pipeline:contains`, modify `context.jsonld` to add mappings for new fields like `fill_level_cm`, and update `docs/ontology.md` with the new custom terms. The existing `sensor.jsonld`, the observation structure (`@context`, `@type`, `event_time`, `seq`, `run_id`, etc.), and the pipeline architecture would stay the same.
+
 
 
 
 **RQ14: What properties are missing from your models that a real-world deployment would need? Name at least three and explain why they matter.**
 
 Ans:
-
+1. `fillLevel` / `fillPercentage` — a real smart wastebin must track how full it is so the collection service knows when to dispatch.
+2. `firmwareVersion` — in a fleet deployment with many sensors, firmware version tracking is a must for debugging and security reasons.
+3. `lastMaintenanceDate` — sensors degrade and bins need cleaning. Tracking maintenance prevents unreliable readings.
 
 
 **RQ15: Look at one domain-specific data model repository (e.g., SAREF, Smart Data Models, SSN). Find a model related to waste management, sensors, or smart buildings. How does it compare to what you built?**
 
-Ans:
+Ans: The Smart Data Models [WasteContainer](https://github.com/smart-data-models/dataModel.WasteManagement/tree/master/WasteContainer) model defines properties like `fillingLevel`, `status`, `category`, `storedWasteKind`, and `dateLastEmptying`. This model is more complete because it includes filling level and emptying history. Our model on the other hand, includes hardware-level detail (GPIO pin, cooldown seconds, detection angle) that they abstract away. Their model uses NGSI-LD, while ours uses plain JSON-LD.
+
 
 **RQ16: In the DIKW pyramid from the lecture, where does your raw Lab 03 JSONL output sit? Where does the JSON-LD version sit? What moved it up the pyramid?**
 
-Ans:
+Ans: The Lab 03 output sits at the Data layer. It is structured (not raw bits), but it carries no formal semantics — you have to read the source code to understand the fields. The JSON-LD output sits at the Information layer. What moved it up is the semantic annotations (`@context` mappings) that turn opaque key-value pairs into linked, interpretable facts, and the entity models that provide the context that the raw data lacked.
+
 
 
 
 **RQ17: In your own words, what is the difference between data that works and data that communicates information?**
 
-Ans:
+Ans: "Data that works" is data that our own code can process. Our pipeline reads `event_time` and calculates latency from it, and it works because we know what it means as it is defined in our code. "Data that communicates information" is data that any reader (human or machine) can interpret without access to our code. 
+
 
 
 
 **RQ18: If you had to explain to a non-technical person why your pipeline now produces “better” data, what would you say?**
 
-Ans:
+Ans: Before, our system recorded motion events in a format that only we understood, like keeping notes in your own shorthand. Now, every event comes with a built-in dictionary that explains what each field means, which sensor produced it, where that sensor is located, and what it is attached to. It is the difference between writing "37.5" on a sticky note versus saying "Body temperature: 37.5 °C, measured by thermometer #3 in Axaia, Patra, Maizwnos 100 at 2:30 PM."
