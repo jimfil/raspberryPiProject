@@ -1,3 +1,204 @@
+# Lab 05 — Context-aware Data Modeling
+
+## Section A: Code / Runbook
+
+### Repository structure
+
+```
+lab05/
+├── models/
+│   ├── context.jsonld
+│   ├── sensor.jsonld
+│   ├── wastebin.jsonld
+│   └── environment.jsonld
+├── run_pipeline.py
+├── requirements.txt
+└── README.md
+```
+
+### How to run the pipeline
+
+```bash
+# 1. Create & activate virtualenv
+python3 -m venv venv && source venv/bin/activate
+
+# 2. Install dependencies
+pip install -r requirements.txt
+
+# 3. Run the pipeline (on the Raspberry Pi)
+python run_pipeline.py \
+  --device-id  pir-01 \
+  --pin        7 \
+  --sample-interval 0.1 \
+  --cooldown   5.0 \
+  --min-high   0.5 \
+  --queue-size 64 \
+  --duration   60 \
+  --out        motion_output.jsonl \
+  --verbose
+```
+### How the pipeline produces self-describing output
+
+`run_pipeline.py` loads `models/context.jsonld` on startup and inlines the `@context` in **every** JSONL record. Each observation also carries `@type: "sosa:Observation"` plus three entity references (`sensor_ref`, `wastebin_ref`, `environment_ref`) that point back to the model files via their `@id` URIs.
+
+**Example output line** (pretty-printed):
+
+```json
+{
+  "@context": {
+    "@vocab": "https://schema.org/",
+    "sosa": "http://www.w3.org/ns/sosa/",
+    "ssn": "http://www.w3.org/ns/ssn/",
+    "saref": "https://saref.etsi.org/core/",
+    "bot": "https://w3id.org/bot#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "schema": "https://schema.org/",
+    "pipeline": "https://github.com/jimfil/raspberryPiProject/blob/main/docs/ontology.md#",
+    "event_time": {"@id": "sosa:resultTime", "@type": "xsd:dateTime"},
+    "device_id": {"@id": "sosa:madeBySensor", "@type": "@id"},
+    "event_type": "@type",
+    "motion_state": "pipeline:motionState",
+    "seq": {"@id": "pipeline:sequenceNumber", "@type": "xsd:integer"},
+    "run_id": {"@id": "pipeline:runId", "@type": "xsd:string"},
+    "ingest_time": {"@id": "pipeline:ingestTime", "@type": "xsd:dateTime"},
+    "pipeline_latency_ms": {"@id": "pipeline:pipelineLatencyMs", "@type": "xsd:float"},
+    "sensor_ref": {"@id": "pipeline:sensorRef", "@type": "@id"},
+    "wastebin_ref": {"@id": "pipeline:wastebinRef", "@type": "@id"},
+    "environment_ref": {"@id": "pipeline:environmentRef", "@type": "@id"}
+  },
+  "@type": "sosa:Observation",
+  "device_id": "urn:dev:team05:pir-01",
+  "sensor_ref": "urn:dev:team05:pir-01",
+  "wastebin_ref": "urn:wastebin:bin-01",
+  "environment_ref": "urn:env:kypes-02",
+  "event_time": "2026-04-10T14:32:01.123Z",
+  "event_type": "motion",
+  "motion_state": "detected",
+  "seq": 7,
+  "run_id": "d1f3a2b4-5678-9abc-def0-123456789abc",
+  "ingest_time": "2026-04-10T14:32:01.130Z",
+  "pipeline_latency_ms": 7.0
+}
+```
+
+---
+
+### JSON-LD Models
+
+#### `models/sensor.jsonld`
+
+```json
+{
+  "@context": "context.jsonld",
+  "@id": "urn:dev:team05:pir-01",
+  "@type": "sosa:Sensor",
+  "name": "HC-SR501 PIR Motion Sensor",
+  "description": "HC-SR501 passive infrared (PIR) motion sensor mounted on wastebin bin-01 in the lab environment. Detects motion by sensing changes in infrared radiation emitted by warm bodies within its detection cone.",
+  "manufacturer": "Generic / HICHIP",
+  "model": "HC-SR501",
+  "sosa:observes": "sosa:Motion",
+  "ssn:detects": "Changes in infrared radiation from warm bodies (humans) moving within the detection cone",
+  "pipeline:gpioPin": 7,
+  "pipeline:operatingVoltage": "5V DC",
+  "pipeline:detectionRange": "up to 7 metres",
+  "pipeline:detectionAngle": "less than 120 degrees cone",
+  "pipeline:cooldownSeconds": 5.0,
+  "pipeline:minHighSeconds": 0.5,
+  "pipeline:operatingTemperature": "-15°C to +70°C",
+  "pipeline:indoorOutdoor": "indoor",
+  "pipeline:mountedOn": { "@id": "urn:wastebin:bin-01" },
+  "pipeline:deployedIn": { "@id": "urn:env:kypes-02" },
+  "installationDate": "2026-03-31",
+  "pipeline:statusSensor": "active",
+  "identifier": "pir-01"
+}
+```
+
+#### `models/wastebin.jsonld`
+
+```json
+{
+  "@context": "context.jsonld",
+  "@id": "urn:wastebin:bin-01",
+  "@type": "saref:Appliance",
+  "name": "Smart Wastebin Unit 01",
+  "description": "An IoT-enabled outdoor waste collection bin located in kypes-02, University of Patras. Equipped with a PIR motion sensor to detect deposit activity.",
+  "pipeline:capacityLt": 0.48,
+  "pipeline:material": "HDPE plastic",
+  "pipeline:color": "grey,blue",
+  "pipeline:lengthCm": 6.5,
+  "pipeline:widthCm": 7,
+  "pipeline:heightCm": 14.5,
+  "pipeline:wasteType": "general",
+  "pipeline:collectionZone": "Ground Level of ECE Building",
+  "pipeline:collectionRoute": "Classrooms 6-8, CCCS 1-3(kypes aithouses)",
+  "pipeline:statusBin": "active",
+  "sosa:hosts": [{ "@id": "urn:dev:team05:pir-01" }],
+  "pipeline:locatedIn": { "@id": "urn:env:kypes-02" },
+  "identifier": "bin-01",
+  "installationDate": "2026-03-31"
+}
+```
+
+#### `models/environment.jsonld`
+
+```json
+{
+  "@context": "context.jsonld",
+  "@id": "urn:env:kypes-02",
+  "@type": "bot:Space",
+  "name": "kypes-02",
+  "description": "kypes-02, Department of Electrical and Computer Engineering, University of Patras, Greece.",
+  "pipeline:university": "University of Patras",
+  "pipeline:department": "Electrical and Computer Engineering",
+  "pipeline:roomName": "kypes",
+  "pipeline:roomNumber": 2,
+  "pipeline:buildingName": "Engineering Building A",
+  "pipeline:floorNumber": 0,
+  "address": { "addressLocality": "Patras", "addressCountry": "GR" },
+  "pipeline:indoorOutdoor": "indoor",
+  "pipeline:trafficLevel": "medium",
+  "pipeline:contains": [
+    { "@id": "urn:wastebin:bin-01" },
+    { "@id": "urn:dev:team05:pir-01" }
+  ]
+}
+```
+
+#### `models/context.jsonld`
+
+```json
+{
+  "@context": {
+    "@vocab": "https://schema.org/",
+    "sosa": "http://www.w3.org/ns/sosa/",
+    "ssn": "http://www.w3.org/ns/ssn/",
+    "saref": "https://saref.etsi.org/core/",
+    "bot": "https://w3id.org/bot#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "schema": "https://schema.org/",
+    "pipeline": "https://github.com/jimfil/raspberryPiProject/blob/main/docs/ontology.md#",
+    "event_time": { "@id": "sosa:resultTime", "@type": "xsd:dateTime" },
+    "device_id": { "@id": "sosa:madeBySensor", "@type": "@id" },
+    "event_type": "@type",
+    "motion_state": "pipeline:motionState",
+    "seq": { "@id": "pipeline:sequenceNumber", "@type": "xsd:integer" },
+    "run_id": { "@id": "pipeline:runId", "@type": "xsd:string" },
+    "ingest_time": { "@id": "pipeline:ingestTime", "@type": "xsd:dateTime" },
+    "pipeline_latency_ms": { "@id": "pipeline:pipelineLatencyMs", "@type": "xsd:float" },
+    "sensor_ref": { "@id": "pipeline:sensorRef", "@type": "@id" },
+    "wastebin_ref": { "@id": "pipeline:wastebinRef", "@type": "@id" },
+    "environment_ref": { "@id": "pipeline:environmentRef", "@type": "@id" }
+  }
+}
+```
+
+### Entity-Relationship Diagram
+
+> **Figure 1 — Data-model entity-relationship diagram.**  Four entities participate in the model: the **PIR Sensor** (`sosa:Sensor`), the **Wastebin** (`saref:Appliance`), the **Environment** (`bot:Space`), and each **Observation** (`sosa:Observation`) emitted by the pipeline.
+![Entity-relationship diagram](images/image.png)
+
+---
 ## Section B: Report
 
 **RQ1: Which vocabularies/ontologies did you use across your models? Why did you choose them over alternatives?**
