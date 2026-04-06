@@ -236,35 +236,30 @@ Ans: The full `@context` is shown in Section A under `models/context.jsonld`. Th
 
 **RQ7: How did you define your custom namespace? What URL did you use and why?**
 
-Ans:
+Ans: "pipeline": "https://github.com/jimfil/raspberryPiProject/blob/main/docs/ontology.md#". We defined our custom namespace as "pipeline" and used the URL "https://github.com/jimfil/raspberryPiProject/blob/main/docs/ontology.md#" which leads us to the ontology file in our github repository.
 
 
 
 **RQ8: Take one field from your old pipeline output (e.g., event_time). What did it mean before? What does it mean now that it is mapped to a standard term? What is the practical difference?**
 
-Ans:
-
-
+Ans: The field event_time meant the time any event was produced, and now that we mapped it to a standard term it means the UTC timestamp at which the sensor observation was produced by the pipeline producer. It represents the instant the sensor reading was taken, not when it was ingested or processed.
 
 **RQ9: What is the role of @context in JSON-LD? What happens if you remove it is the JSON still valid? Is it still self-describing?**
 
-Ans:
-
+Ans: If we remove the @context of the file it will still be valid, meaning it will be readable by a human, but it will not be self-describing, meaning it will not be machine-readable.
 
 
 **RQ10: How did you handle the @context in your streaming JSONL pipeline, inline, external reference, or something else? What are the trade-offs of your choice?**
 
-Ans:
+Ans: By placing @context first, a streaming parser can immediately resolve term definitions for all subsequent properties, processing data incrementally as it arrives, allowing the analysis of large or infinite data streams without loading the entire document into memory. This though, enforces a strict order on the JSON, which is not required by standard JSON-LD. Producers of the data must be aware of and adhere to this convention, adding complexity to the data generation process.
 
 **RQ11: Include your entity-relationship diagram in the report. Explain the diagram briefly, what are the entities, what are the key relationships, and how does an observation connect to the rest of the model?**
 
-Ans:
+Ans: The entities are the SENSOR, which represents the physical hardware, the WASTEBIN which represents the physical object that is being monitored, the ENVIRONMENT, which represents the physical location where the sensor and wastebin are located, and the OBSERVATION, a specific point-in-time data event. The SENSOR is mountedOn the WASTEBIN and is deployedIn the ENVIRONMENT. The ENVIRONMENT contains both the WASTEBIN and the SENSOR, while the WASTEBIN hosts the sensor. The WASTEBIN is explicitly locatedIn the ENVIRONMENT, and the OBSERVATION is linked to the SENSOR via the sosa:madeBySensor property, the WASTEBIN via the pipeline:wastebinRef property, and the ENVIRONMENT via the pipeline:environmentRef property.
 
 **RQ12: Another team uses a different motion sensor (e.g., microwave radar instead of PIR) but follows the same JSON-LD context. Could a downstream application process both teams’ data without modification? Why or why not?**
 
-Ans:
-
-
+Ans: First of all, the microwave radar has a 360 degree angle range and can detect motion through plastic, but if the context and @id of the device is the same then it could process both teams' data without modification, assuming the data types from both sensors are semantically compatible. 
 
 **RQ13: You need to add an ultrasonic distance sensor to measure bin fill level. What new JSON-LD files would you create? What would you change in existing files? What would stay the same?**
 
