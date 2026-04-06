@@ -41,7 +41,7 @@ python run_pipeline.py \
 
 `run_pipeline.py` loads `models/context.jsonld` on startup and inlines the `@context` in **every** JSONL record. Each observation also carries `@type: "sosa:Observation"` plus three entity references (`sensor_ref`, `wastebin_ref`, `environment_ref`) that point back to the model files via their `@id` URIs.
 
-**Example output line** (pretty-printed):
+**Example output line**:
 
 ```json
 {
@@ -195,7 +195,7 @@ python run_pipeline.py \
 
 ### Entity-Relationship Diagram
 
-![alt text](images/image.png)
+![alt text](images/erdiagram.png) 
 > **Figure 1 — Data-model entity-relationship diagram.**  Four entities participate in the model: the **PIR Sensor** (`sosa:Sensor`), the **Wastebin** (`saref:Appliance`), the **Environment** (`bot:Space`), and each **Observation** (`sosa:Observation`) emitted by the pipeline.
 ---
 ## Section B: Report
