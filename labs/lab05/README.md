@@ -196,7 +196,7 @@ python run_pipeline.py \
 ### Entity-Relationship Diagram
 
 > **Figure 1 — Data-model entity-relationship diagram.**  Four entities participate in the model: the **PIR Sensor** (`sosa:Sensor`), the **Wastebin** (`saref:Appliance`), the **Environment** (`bot:Space`), and each **Observation** (`sosa:Observation`) emitted by the pipeline.
-![Entity-relationship diagram](images/image.png)
+![alt text](images/image.png)
 
 ---
 ## Section B: Report
