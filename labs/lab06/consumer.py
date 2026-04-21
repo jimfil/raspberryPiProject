@@ -81,9 +81,11 @@ def on_message(client, userdata, msg, metrics, out_file, verbose):
     print(f"Statistics: {metrics['consumed']} messages consumed, {metrics['dropped']} messages dropped, {metrics['status_updates']} status updates.")
 
 @click.command()
+@click.option("--broker", default="localhost", help="MQTT Broker address")
+@click.option("--port", type=int, default=1883, help="MQTT Broker port")
 @click.option("--out", required=True, help="Path to the output JSONL file")
 @click.option("--verbose", is_flag=True, help="Print status messages to the terminal")
-def main(out: str, verbose: bool):
+def main(broker: str, port: int, out: str, verbose: bool):
     # Creating an MQTT client
     client = mqtt.Client()
     # Connecting the callback functions so the client knows
@@ -98,7 +100,7 @@ def main(out: str, verbose: bool):
 
     # Connecting to the MQTT broker.
     # keepalive=60 means the client will notify the broker that it is active every 60 seconds.
-    client.connect(BROKER_ADDRESS, BROKER_PORT, keepalive=60)
+    client.connect(broker, port, keepalive=60)
     print("Waiting for messages... Press Ctrl+C to exit.")
     # loop_forever keeps the client running,
     # constantly listening for events (e.g., incoming messages).
