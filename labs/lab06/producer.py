@@ -36,7 +36,7 @@ stop_flag = False
 
 def handle_sigint(sig, frame):
     global stop_flag
-    print("\n[Producer] Ανιχνεύθηκε Ctrl+C, τερματισμός...")
+    print("\n[Producer] Ctrl+C detected, terminating...")
     stop_flag = True
 
 @click.command()
@@ -67,49 +67,36 @@ def main(
     global stop_flag
     signal.signal(signal.SIGINT, handle_sigint)
 
-    # 1. Create an MQTT client
     client = mqtt.Client()
     
-    # Setup Last Will and Testament (retained message on unexpected disconnect)
     client.will_set(status_topic, "offline", qos=1, retain=True)
     
-    # 2. Connect to the broker
     if verbose:
-        print(f"[Producer] Σύνδεση στον broker {broker}:{port}...")
+        print(f"[Producer] Connecting to broker {broker}:{port}...")
     client.connect(broker, port, keepalive=60)
     
-    # 3. Start the MQTT network loop
     client.loop_start()
 
-    # Δημοσίευση ότι ο αισθητήρας είναι online (retained)
     client.publish(status_topic, "online", qos=1, retain=True)
 
-    # 4. Set up the sampler and interpreter as before
     sampler = PirSampler(pin=pin)
     interp = PirInterpreter(cooldown_s=cooldown, min_high_s=min_high)
 
-    # 5. Set run_id, seq counter
     run_id = str(uuid.uuid4())
     seq = 0
 
-    print("[Producer] Ξεκίνησε η ανάγνωση του αισθητήρα (while not stopped). Πατήστε Ctrl+C για διακοπή.")
+    print("[Producer] Started reading the sensor (while not stopped). Press Ctrl+C to stop.")
     
-    # 6. While not stopped:
     while not stop_flag:
         current_time_s = time.time()
         
-        # Read a sample from the sampler
         raw = sampler.read()
         
-        # Update the interpreter
         events = interp.update(raw, current_time_s)
 
-        # For each event the interpreter returns:
         for event in events:
-            # Increment seq
             seq += 1
             
-            # Build the event record (same fields as before, with JSON-LD context)
             record = {
                 "@context":        JSONLD_CONTEXT,
                 "@type":           "sosa:Observation",
@@ -127,33 +114,26 @@ def main(
                 "run_id":          run_id,
             }
             
-            # Convert the record to a JSON string
             payload = json.dumps(record)
             
-            # Publish the JSON string to your chosen MQTT topic
             client.publish(topic, payload, qos=qos)
             
-            # Print a status line if verbose
             if verbose:
-                print(f"[Producer] Στάλθηκε event: {payload}")
+                print(f"[Producer] Sent event: {payload}")
 
-        # Sleep for the sample interval
         time.sleep(sample_interval)
 
-    # 7. On shutdown:
     if verbose:
-        print("[Producer] Τερματισμός...")
+        print("[Producer] Terminating...")
     
-    # Publish a retained status message ("offline") to a status topic
     client.publish(status_topic, "offline", qos=1, retain=True)
-    time.sleep(0.5) # Μικρή παύση για να προλάβει να σταλεί το μήνυμα
+    time.sleep(0.5) 
     
-    # Disconnect from the broker
     client.loop_stop()
     client.disconnect()
     
     if verbose:
-        print("[Producer] Αποσύνδεση επιτυχής.")
+        print("[Producer] Disconnection successful.")
 
 if __name__ == "__main__":
     main()
