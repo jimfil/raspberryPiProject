@@ -119,7 +119,7 @@ def main(
             client.publish(topic, payload, qos=qos)
             
             if verbose:
-                print(f"[Producer] Sent event: {payload}")
+                print(f"[Producer] Sent event: {event}")
 
         time.sleep(sample_interval)
 
