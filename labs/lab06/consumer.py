@@ -47,7 +47,7 @@ def on_message(client, userdata, msg, metrics, topic, out_file, verbose):
     # - msg.topic: the topic from which the message came
     # - msg.payload: the content of the message (bytes)
     payload = msg.payload.decode('utf-8')
-    
+    print(msg.topic)
     # Check if this is a status message (retained)
     if msg.topic == STATUS_TOPIC:
         print(f"[Status] Producer status: {payload}")
@@ -55,28 +55,27 @@ def on_message(client, userdata, msg, metrics, topic, out_file, verbose):
         return
     
     # Handle event messages
-    if msg.topic == topic:
-        try:
-            with open(out_file, "a") as f:
-                record = json.loads(payload)
-                if verbose:
-                    print(f"Received message on topic '{msg.topic}': {record}")
+    try:
+        with open(out_file, "a") as f:
+            record = json.loads(payload)
+            if verbose:
+                print(f"Received message on topic '{msg.topic}': {record}")
 
-                current_utc_iso = utc_now_iso()
-                record["ingest_time"] = current_utc_iso
-                event_dt  = parse_iso_utc(record["event_time"])
-                ingest_dt = parse_iso_utc(current_utc_iso)
+            current_utc_iso = utc_now_iso()
+            record["ingest_time"] = current_utc_iso
+            event_dt  = parse_iso_utc(record["event_time"])
+            ingest_dt = parse_iso_utc(current_utc_iso)
 
-                latency_s = (ingest_dt - event_dt).total_seconds()
-                record["pipeline_latency_ms"] = round(latency_s * 1000, 3)
+            latency_s = (ingest_dt - event_dt).total_seconds()
+            record["pipeline_latency_ms"] = round(latency_s * 1000, 3)
 
-                f.write(json.dumps(record) + "\n")
-                f.flush()
-                metrics["consumed"] += 1
-                print(f"Latency: {record['pipeline_latency_ms']} ms")
-        except Exception as e:
-            print(f"Error processing the message: {e}")
-            metrics["dropped"] += 1
+            f.write(json.dumps(record) + "\n")
+            f.flush()
+            metrics["consumed"] += 1
+            print(f"Latency: {record['pipeline_latency_ms']} ms")
+    except Exception as e:
+        print(f"Error processing the message: {e}")
+        metrics["dropped"] += 1
     print(f"Statistics: {metrics['consumed']} messages consumed, {metrics['dropped']} messages dropped, {metrics['status_updates']} status updates.")
 
 @click.command()
