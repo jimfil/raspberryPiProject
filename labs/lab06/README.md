@@ -1,4 +1,5 @@
-Section B
+## Section B: Report
+
 
 
 **RQ1: What is the role of the MQTT broker? Why don’t we just let the producer and consumer communicate directly (e.g via sockets)?**
