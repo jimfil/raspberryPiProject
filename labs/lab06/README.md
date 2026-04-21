@@ -76,7 +76,7 @@ Ans:
 
 **RQ13: You ran two consumers on the same topic. Did both receive every message? Why does this matter for building scalable systems?**
 
-Ans: 
+Ans: The consumers both received the same message. This is important for building scalable systems because, for example in our case, we need to inform the waste management agency and our system that our smart bin is full.
 
 
 
@@ -88,7 +88,7 @@ Ans:
 
 **RQ15: In your own words, what does “decoupling” mean in the context of pub/sub? What are the practical benefits?**
 
-Ans: 
+Ans: Decoupling means breaking down the dependency between the publisher and subscriber, and instead using a message broker or a topic as a middleman. We mentioned some of the benefits of the MQTT broker in earlier questions. A synopsy of the benefits of decoupling are: efficient communication to a high number of consumers, the subscriber being offline does not mean the message will get lost; the message will be retained, improved scalability and performance.
 
 
 
