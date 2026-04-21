@@ -27,23 +27,22 @@ def parse_iso_utc(s: str) -> datetime:
 
 BROKER_ADDRESS = "localhost"
 BROKER_PORT = 1883
-EVENT_TOPIC = "smartbin/bin-01/pir-01/events"
 STATUS_TOPIC = "smartbin/bin-01/pir-01/status"
 
 
-def on_connect(client, userdata, flags, rc):
+def on_connect(client, userdata, flags, rc, topic):
     # Callback that executes when the client connects to the broker.
     # rc == 0 means successful connection
     if rc == 0:
         print("Successfully connected to the broker!")
-        client.subscribe(EVENT_TOPIC)
-        print(f"Subscribed to topic: {EVENT_TOPIC}")
+        client.subscribe(topic)
+        print(f"Subscribed to topic: {topic}")
         client.subscribe(STATUS_TOPIC)
         print(f"Subscribed to topic: {STATUS_TOPIC}")
     else:
         print(f"Connection failed. Code: {rc}")
 
-def on_message(client, userdata, msg, metrics, out_file, verbose):
+def on_message(client, userdata, msg, metrics, topic, out_file, verbose):
     # Callback that executes when a message is received from a topic.
     # - msg.topic: the topic from which the message came
     # - msg.payload: the content of the message (bytes)
@@ -56,7 +55,7 @@ def on_message(client, userdata, msg, metrics, out_file, verbose):
         return
     
     # Handle event messages
-    if msg.topic == EVENT_TOPIC:
+    if msg.topic == topic:
         try:
             with open(out_file, "a") as f:
                 record = json.loads(payload)
@@ -83,9 +82,11 @@ def on_message(client, userdata, msg, metrics, out_file, verbose):
 @click.command()
 @click.option("--broker", default="localhost", help="MQTT Broker address")
 @click.option("--port", type=int, default=1883, help="MQTT Broker port")
+@click.option("--topic", type=str, default="smartbin/bin-01/pir-01/events", help="MQTT topic for events")
+@click.option("--qos", type=int, default=1, help="MQTT QoS (0=At most once, 1=At least once, 2=Exactly once)")
 @click.option("--out", required=True, help="Path to the output JSONL file")
 @click.option("--verbose", is_flag=True, help="Print status messages to the terminal")
-def main(broker: str, port: int, out: str, verbose: bool):
+def main(broker: str, port: int, topic: str, qos: int, out: str, verbose: bool):
     # Creating an MQTT client
     client = mqtt.Client()
     # Connecting the callback functions so the client knows
@@ -95,8 +96,8 @@ def main(broker: str, port: int, out: str, verbose: bool):
         "dropped": 0,
         "status_updates": 0,
     }
-    client.on_connect = on_connect
-    client.on_message = lambda client, userdata, msg: on_message(client, userdata, msg, metrics, out+".log", verbose)
+    client.on_connect = lambda client, userdata, flags, rc: on_connect(client, userdata, flags, rc, topic)
+    client.on_message = lambda client, userdata, msg: on_message(client, userdata, msg, metrics, topic, out+".log", verbose)
 
     # Connecting to the MQTT broker.
     # keepalive=60 means the client will notify the broker that it is active every 60 seconds.
