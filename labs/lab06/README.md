@@ -242,7 +242,7 @@ Ans: The subscriber did not receive the message because the broker had no subcri
 
 **RQ8: What are the main differences between your run_pipeline.py (threaded queue) and the new producer.py + consumer.py (MQTT)?**
 
-Ans: 
+Ans: The threaded queue version (Lab 05) uses local in-process communication through a Python Queue, tightly coupling producer and consumer threads within a single process on the same machine. It uses a drop-newest policy for backpressure when the queue is full. The MQTT version (Lab 06) decouples producer and consumer completely—they run in separate processes/machines and communicate through a central broker. MQTT provides automatic message queuing on the broker side, automatic reconnection, retained messages, QoS guarantees, and pub/sub wildcard subscriptions. The MQTT version is also distributed (can run producer on Pi and consumer on laptop) whereas the threaded version is local-only. Finally, MQTT is language-agnostic and network-transparent; the threaded version is Python-specific.
 
 
 
@@ -284,7 +284,7 @@ The structure is identical to previous labs (JSON-LD format with @context and @t
 
 **RQ12: You stopped the consumer and kept the producer running. What happened to the messages published during that time? Were they delivered when the consumer restarted?**
 
-Ans: 
+Ans: When the consumer was offline, the producer continued publishing messages to the broker with QoS 1. The broker stored these messages in memory (since they were not retained messages; retained messages persist even after the broker restarts). When the consumer reconnected and resubscribed to the topic, the broker delivered all queued messages to the consumer. The consumer received them and added ingest_time/latency stamps, creating a "catch-up" period where it processed the backlog. This demonstrates MQTT's store-and-forward capability, which is crucial for reliable IoT systems where consumers may be temporarily offline.
 
 
 
