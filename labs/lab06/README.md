@@ -296,7 +296,7 @@ Ans: The consumers both received the same message. This is important for buildin
 
 **RQ14: Could you run the producer on one Raspberry Pi and the consumer on a different machine (e.g., your laptop)? What would you need to change?**
 
-Ans: 
+Ans: We can do that. First, we need to update mosquitto.conf, so the broker can communicate with other devices in our local network. to do that, we open the config file: "sudo nano /etc/mosquitto/mosquitto.conf",  and we use the instructions: "listener 1883 0.0.0.0 \n allow_anonymous true" to allow the broker to listen to any ip address in our network, without needing a username or a password. Then, we restart the system: "sudo systemctl restart mosquitto". Then we need to find the IP of the Pi(producer) and our computer(consumer), and replace them to the corresponnding Python files for the consumer and the producer.
 
 
 
@@ -308,6 +308,6 @@ Ans: Decoupling means breaking down the dependency between the publisher and sub
 
 **RQ16: If the Mosquitto broker itself crashes, what happens to your system? How could you mitigate this?**
 
-Ans: 
+Ans: If the MQTT broker crashes, it is going to result in a total and immediate communication blackout between producers and consumers, automated devices like edge devices that rely on data from a sensor will stop and there is a risk of loss of data without the broker. We could mitigate the effects of a crash by rebooting or restarting the broker automatically, by saving the data and the messages being transferred to a disk, and by using QoS 1 (At least once) or QoS 2 (Exactly once) for crucial messages. This ensures that if the broker drops a message, the client will re-send it upon reconnection.
 
 
