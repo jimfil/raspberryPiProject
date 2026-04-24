@@ -104,7 +104,12 @@ def main(broker: str, port: int, topic: str, qos: int, out: str, verbose: bool):
     print("Waiting for messages... Press Ctrl+C to exit.")
     # loop_forever keeps the client running,
     # constantly listening for events (e.g., incoming messages).
-    client.loop_forever()
+    try:
+        client.loop_forever()
+    except KeyboardInterrupt:
+        print("\n[consumer] shutting down...")
+        client.disconnect()
+
 
 
 
