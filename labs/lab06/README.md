@@ -20,12 +20,6 @@ Navigate to the `labs/lab06` directory:
 cd raspberryPiProject/labs/lab06
 ```
 
-Create a virtual environment:
-```bash
-python3 -m venv venv
-```
-
-
 ### Dependency Installation
 Install the required packages using the `requirements.txt` file:
 ```bash
