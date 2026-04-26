@@ -61,7 +61,6 @@ Docker Compose will automatically:
 - Start the Mosquitto broker container with health checks
 - Set up Docker networking so producer and consumer can reach the broker via hostname `broker`
 - Mount volumes for persistence and output
-- Apply resource limits (CPU and memory)
 - Set auto-restart policy
 
 Run all services in detached mode:
@@ -120,14 +119,13 @@ The `docker-compose.yml` file defines three services:
    - Publishes status to `smartbin/bin-01/pir-01/status`
    - Connects to broker using the service name `broker` (Docker DNS resolves this to the broker's IP)
    - Has GPIO hardware access (`/dev/gpiomem`, `/dev/gpiochip0`)
-   - Runs with CPU and memory limits
+
 
 3. **consumer** (built from Dockerfile)
    - Subscribes to motion events from the producer
    - Writes JSONL records to `/data/motion_events.jsonl`
    - Output volume persisted in `output-data`
    - Connects to broker using the service name `broker`
-   - Runs with CPU and memory limits
 
 **Key Points:**
 - The `depends_on: broker: condition: service_healthy` ensures the broker is ready before producer/consumer start

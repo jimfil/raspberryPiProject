@@ -12,7 +12,7 @@ services:
       - broker-logs:/mosquitto/log
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "mosquitto_sub", "-h", "localhost", "-t", "$SYS/broker/clients/total", "-W", "1"]
+      test: [ "CMD", "mosquitto_sub", "-h", "127.0.0.1", "-p", "1883", "-t", "health/ping", "-E" ]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -31,16 +31,12 @@ services:
       - "/dev/gpiochip0:/dev/gpiochip0"
     volumes:
       - ./:/app
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 128M
     restart: unless-stopped
     environment:
       BROKER_HOST: broker
       BROKER_PORT: 1883
-    command: 
+      PYTHONUNBUFFERED: "1"
+    command:
       - python
       - producer.py
       - --device-id
@@ -77,11 +73,6 @@ services:
     volumes:
       - ./:/app
       - output-data:/data
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 128M
     restart: unless-stopped
     environment:
       BROKER_HOST: broker
