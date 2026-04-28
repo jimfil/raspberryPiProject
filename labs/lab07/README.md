@@ -190,7 +190,11 @@ The output JSONL file (`motion_events.jsonl.log`) will contain records like:
 
 
 
-RQ1: What is Home Assistant and what problem does it solve? Why use it instead of building a custom dashboard?
+**RQ1: What is Home Assistant and what problem does it solve? Why use it instead of building a custom dashboard?**
+Ans: 
+
+
+
 RQ2: What is the difference between the “Home Assistant OS” and “Home Assistant Container” installation methods? Why did we use the Container method?
 RQ3: What is an entity in Home Assistant? Give three examples of entities in your setup and their current states.
 
