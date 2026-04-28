@@ -192,37 +192,37 @@ The output JSONL file (`motion_events.jsonl.log`) will contain records like:
 
 **RQ1: What is Home Assistant and what problem does it solve? Why use it instead of building a custom dashboard?**
 
-Ans: 
+Ans: Home Assistant is an open-source platform designed for home automation. It acts like a local control center for your smart home through a web-based dashboard where you can monitor the state of devices and sensors. Home Assistant offers us a dashboard, a state manager, an automation engine, and a history database, basically an all in one, without us having to create all these things from scratch.
 
 
 
 **RQ2: What is the difference between the “Home Assistant OS” and “Home Assistant Container” installation methods? Why did we use the Container method?**
 
-Ans:
+Ans: The “Home Assistant OS” method integrates the Home Assistant in a device completely, like a normal OS, while the “Home Assistant Container” method isolates the Home Assistant in a container using the docker. We used the “Home Assistant Container” method so we can run Home Assistant in an isolated environment, without the Home Assistant OS interfering with or taking over our Pi operating system.
 
 
 
 **RQ3: What is an entity in Home Assistant? Give three examples of entities in your setup and their current states.**
 
-Ans:
+Ans: Entities are the basic building blocks to hold data in Home Assistant. An entity represents a sensor, action, or function in Home Assistant. Entities are used to monitor physical properties or to control other entities. In our setup,
 
 
 
 **RQ4: How does Home Assistant learn about your sensors? Explain the MQTT discovery mechanism, what topic do you publish to, and what does the payload contain?**
 
-Ans:
+Ans: Home Assistant learns about sensors via MQTT Discovery by listening for JSON configuration messages published by devices to specific topics on an MQTT broker. This automated process allows devices (like ESP8266 or Node-RED) to identify themselves, their capabilities, and their state topics, allowing Home Assistant to auto-configure them without manual YAML entry. We published to the topic: "", a configuration message containig the payload:
 
 
 
 **RQ5: Why should discovery messages be published with the retain flag (-r)?**
 
-Ans:
+Ans: The retain flag allows the Home Assistant to detect the message even if it restarts after the message was published.
 
 
 
 **RQ6: What is the device block in a discovery message? What happens in the Home Assistant UI when multiple entities share the same device.identifiers?**
 
-Ans:
+Ans: 
 
 
 
