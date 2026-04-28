@@ -190,116 +190,34 @@ The output JSONL file (`motion_events.jsonl.log`) will contain records like:
 
 
 
-**RQ1: What is the role of the MQTT broker? Why don’t we just let the producer and consumer communicate directly (e.g via sockets)?**
-
-Ans: MQTT follows the publish-subscribe model, where clients communicate with a central server called a broker. The broker has some advantages over direct communication, which are: the producer and the consumer just connect to the broker without having direct connection which requires for both of them to be online and know eachothers IP address, the distribution of information through the broker to multiple consumers is easier than a producer connecting directly to them, the reconnection in MQTT brokers is handled automatically and data is queued during downtime and lastly the MQTT broker has simplified security mechanisms, independent from producer and consumer devices. 
-
-
-
-**RQ2: What topic structure did you choose and why? How does it support future extensibility (more sensors, more bins)?**
-
-Ans: We chose the hierarchical topic structure: `smartbin/<bin-id>/<sensor-id>/events` and `smartbin/<bin-id>/<sensor-id>/status`. This structure is chosen because it organizes data by domain (smartbin), then by physical device (bin), then by specific sensor, and finally by data type (events or status). This is highly extensible: to add a new bin, we just add a new `<bin-id>` segment; to add a new sensor type to an existing bin, we add a new `<sensor-id>`. Multiple consumers can subscribe using wildcards like `smartbin/+/+/events` to get all events from all bins and sensors, or `smartbin/bin-01/+/events` to get all sensor events from a specific bin.
+RQ1: What is Home Assistant and what problem does it solve? Why use it instead of building a custom dashboard?
+RQ2: What is the difference between the “Home Assistant OS” and “Home Assistant Container” installation methods? Why did we use the Container method?
+RQ3: What is an entity in Home Assistant? Give three examples of entities in your setup and their current states.
 
 
-
-**RQ3: Explain the difference between QoS 0, 1, and 2 in your own words. Which did you use for your motion events and why?**
-
-Ans: QoS 0 (At Most Once) means the broker sends the message once and does not wait for acknowledgment—fast but messages can be lost. QoS 1 (At Least Once) means the broker sends the message and waits for acknowledgment; if not received, it resends—guarantees delivery but messages might be duplicated. QoS 2 (Exactly Once) means the broker uses a handshake protocol to ensure the message is delivered exactly once—slowest but most reliable. For motion events, we used QoS 1 because motion detection is time-sensitive and we need to guarantee each event is delivered, but occasional duplicates are acceptable and can be deduplicated by the consumer using the sequence number in the record.
-
-
-
-**RQ4: What is a retained message? Give one concrete example of when it would be useful for your system.**
-
-Ans: A retained message is a message which has a flag activated which enables the message to remain for future subscribers. A retained message would be useful for transferring basic data for our smart bin like status(online, offline; back in x hours,...).
+RQ4: How does Home Assistant learn about your sensors? Explain the MQTT discovery mechanism, what topic do you publish to, and what does the payload contain?
+RQ5: Why should discovery messages be published with the retain flag (-r)?
+RQ6: What is the device block in a discovery message? What happens in the Home Assistant UI when multiple entities share the same device.identifiers?
+RQ7: What is the difference between a state_topic and a json_attributes_topic? When would you use each?
 
 
-
-**RQ5: When you subscribed to smartbin/+/motion, which messages did you receive and which did you not? Explain why, based on how + works.**
-
-Ans: When subscribing to `smartbin/+/motion`, we received messages from topics like `smartbin/bin-01/motion`, `smartbin/bin-02/motion`, etc. We did NOT receive messages from `smartbin/bin-01/pir-01/motion` or `smartbin/bin-01/pir-01/events/motion` because the `+` wildcard matches exactly ONE topic level. Since our actual topic structure is `smartbin/<bin-id>/<sensor-id>/<data-type>`, the `+` only covers one of those segments, so it would match `smartbin/+/events` (all sensors, all bins, events only) but not messages with more or fewer levels in the topic hierarchy.
-
-
-
-**RQ6: What happened when you subscribed to #? Why is this useful for debugging but dangerous in production?**
-
-Ans: The wildcard subscription '#' allows us to observe: the entire data flow of a specified topic, the whole timeline of a bug occuring without having to look at disparate log files, which is critical for time-sensitive production issues. It also helps us in tracking and identifying messages sent to wrong topics, or messages with the wrong data format, so it acts as a 'monitor' of the entire topic. But it can be dangerous in production mainly because of the sheer amount of data being transferred through the broker, which could result in potentially slowing down or crashing the message broker, in the client's inability to process the information, leading to memory saturation and out-of-memory errors, or in receiving sensitive client information.  
+RQ8: List all the entities you created. For each one, give: the entity type (binary_sensor, sensor, counter, etc.), the state topic (if MQTT-based), and why you chose that type.
+RQ9: What device_class did you use for your motion sensor? What does the device class affect in the Home Assistant UI?
+RQ10: What additional entities did you create beyond the minimum? Why did you choose those?
+RQ11: How did you group your entities under devices? Draw or describe the device → entity hierarchy.
 
 
-
-**RQ7: You published a message while no subscriber was connected (without the retain flag). Then you started a subscriber. Did it receive the message? Why or why not?**
-
-Ans: The subscriber did not receive the message because the broker had no subcribers, so the message without the retained flag was not retained by the broker.
-
-
-
-**RQ8: What are the main differences between your run_pipeline.py (threaded queue) and the new producer.py + consumer.py (MQTT)?**
-
-Ans: The threaded queue version (Lab 05) uses local in-process communication through a Python Queue, tightly coupling producer and consumer threads within a single process on the same machine. It uses a drop-newest policy for backpressure when the queue is full. The MQTT version (Lab 06) decouples producer and consumer completely—they run in separate processes/machines and communicate through a central broker. MQTT provides automatic message queuing on the broker side, automatic reconnection, retained messages, QoS guarantees, and pub/sub wildcard subscriptions. The MQTT version is also distributed (can run producer on Pi and consumer on laptop) whereas the threaded version is local-only. Finally, MQTT is language-agnostic and network-transparent; the threaded version is Python-specific.
+RQ12: How does the Home Assistant Counter helper work? What services can you call on it?
+RQ13: Paste the YAML of your “Count motion events” automation. Explain each part (trigger, condition, action).
+RQ14: What other automation(s) did you create? Paste the YAML and explain the trigger, condition (if any), and action.
+RQ15: Give one example of an automation that would be useful in a real Smart Wastebin deployment that involves a condition (not just trigger → action). Describe the trigger, the condition, and the action.
 
 
-
-**RQ9: In the threaded version, what happened when the queue was full? In the MQTT version, what happens if the consumer is slow or offline?**
-
-Ans: In the threaded version, if the queue was full, the messages would be lost. But in the MQTT version, given that the consumer is subscribed, the messages would be retained by the broker.
-
+RQ16: Your producer now publishes to two kinds of topics: the data topic (full JSON events for the consumer) and the HA state topics (simple values for Home Assistant). Why not use the same topic for both?
+RQ17: Show a screenshot of your Home Assistant dashboard with your wastebin entities visible.
+RQ18: What happens in Home Assistant when the producer is stopped? Does the motion sensor show “unavailable”, “clear”, or something else? How could you improve this?
 
 
-**RQ10: How does the callback pattern in paho-mqtt (on_message) differ from the polling pattern you used in the threaded consumer (queue.get(timeout=0.5))?**
-
-Ans: The polling pattern (queue.get with timeout) is synchronous—the consumer thread actively waits and blocks until a message arrives or the timeout expires. The callback pattern (on_message) is event-driven—the MQTT client library runs an event loop in the background and invokes the callback function whenever a message arrives, without the consumer code needing to poll. Callbacks are more efficient (no busy-waiting) but require careful handling of concurrent access and shared state. Polling is simpler to understand and debug (sequential flow) but less efficient if the arrival rate is low.
-
-
-
-**RQ11: Show one example JSON record from the MQTT-based consumer. Is the structure the same as in previous labs? What about pipeline_latency_ms, is it higher or lower? Why?**
-
-Ans: Example record:
-```json
-{
-  "@context": {...},
-  "@type": "sosa:Observation",
-  "device_id": "urn:dev:team05:pir-01",
-  "sensor_ref": "urn:dev:team05:pir-01",
-  "wastebin_ref": "urn:wastebin:bin-01",
-  "environment_ref": "urn:env:kypes-02",
-  "event_time": "2026-04-21T10:30:45.123Z",
-  "event_type": "motion",
-  "motion_state": "detected",
-  "seq": 1,
-  "run_id": "d1f3a2b4-5678-9abc-def0-123456789abc",
-  "ingest_time": "2026-04-21T10:30:45.127Z",
-  "pipeline_latency_ms": 4.0
-}
-```
-The structure is identical to previous labs (JSON-LD format with @context and @type). The pipeline_latency_ms is typically LOWER in the MQTT version (4-10 ms range) compared to the threaded queue version (10-50 ms range) because MQTT broker-to-client communication is optimized for low latency, and there's no local queue contention. However, if the consumer is on a remote machine, latency can be higher due to network RTT.
-
-
-
-**RQ12: You stopped the consumer and kept the producer running. What happened to the messages published during that time? Were they delivered when the consumer restarted?**
-
-Ans: When the consumer was offline, the producer continued publishing messages to the broker with QoS 1. The broker stored these messages in memory (since they were not retained messages; retained messages persist even after the broker restarts). When the consumer reconnected and resubscribed to the topic, the broker delivered all queued messages to the consumer. The consumer received them and added ingest_time/latency stamps, creating a "catch-up" period where it processed the backlog. This demonstrates MQTT's store-and-forward capability, which is crucial for reliable IoT systems where consumers may be temporarily offline.
-
-
-
-**RQ13: You ran two consumers on the same topic. Did both receive every message? Why does this matter for building scalable systems?**
-
-Ans: The consumers both received the same message. This is important for building scalable systems because, for example in our case, we need to inform the waste management agency and our system that our smart bin is full.
-
-
-
-**RQ14: Could you run the producer on one Raspberry Pi and the consumer on a different machine (e.g., your laptop)? What would you need to change?**
-
-Ans: We can do that. First, we need to update mosquitto.conf, so the broker can communicate with other devices in our local network. to do that, we open the config file: "sudo nano /etc/mosquitto/mosquitto.conf",  and we use the instructions: "listener 1883 0.0.0.0 \n allow_anonymous true" to allow the broker to listen to any ip address in our network, without needing a username or a password. Then, we restart the system: "sudo systemctl restart mosquitto". Then we need to find the IP of the Pi(producer) and our computer(consumer), and replace them to the corresponnding Python files for the consumer and the producer.
-
-
-
-**RQ15: In your own words, what does “decoupling” mean in the context of pub/sub? What are the practical benefits?**
-
-Ans: Decoupling means breaking down the dependency between the publisher and subscriber, and instead using a message broker or a topic as a middleman. We mentioned some of the benefits of the MQTT broker in earlier questions. A synopsy of the benefits of decoupling are: efficient communication to a high number of consumers, the subscriber being offline does not mean the message will get lost; the message will be retained, improved scalability and performance.
-
-
-
-**RQ16: If the Mosquitto broker itself crashes, what happens to your system? How could you mitigate this?**
-
-Ans: If the MQTT broker crashes, it is going to result in a total and immediate communication blackout between producers and consumers, automated devices like edge devices that rely on data from a sensor will stop and there is a risk of loss of data without the broker. We could mitigate the effects of a crash by rebooting or restarting the broker automatically, by saving the data and the messages being transferred to a disk, and by using QoS 1 (At least once) or QoS 2 (Exactly once) for crucial messages. This ensures that if the broker drops a message, the client will re-send it upon reconnection.
-
-
+RQ19: Compare the effort of building a custom web dashboard vs. using Home Assistant. What do you gain? What do you give up?
+RQ20: Home Assistant runs locally on the Pi, no cloud needed. Why does this matter for an edge IoT deployment?
+RQ21: If your project had 10 wastebins with 3 sensors each, how would the MQTT discovery approach scale compared to manually configuring 30 entities?
