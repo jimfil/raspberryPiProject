@@ -41,9 +41,6 @@ mosquitto_sub -h localhost -t "test/hello" &
 mosquitto_pub -h localhost -t "test/hello" -m "Hello MQTT"
 ```
 
----
-
-
 
 
 ---
