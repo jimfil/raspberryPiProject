@@ -258,7 +258,7 @@ Ans:
 
 **RQ12: How does the Home Assistant Counter helper work? What services can you call on it?**
 
-Ans:
+Ans: The Home Assistant Counter helper works by incrementing a counter every time an MQTT message is received on the configured topic. It allows you to define a maximum value and a reset value. You can call services on it to reset the counter or manually increment it.
 
 
 
