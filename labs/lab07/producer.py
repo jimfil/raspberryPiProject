@@ -39,6 +39,54 @@ def handle_sigint(sig, frame):
     print("\n[Producer] Ctrl+C detected, terminating...")
     stop_flag = True
 
+def publish_discovery(client):
+    print("[Producer] Publishing HA discovery messages...")
+    
+    motion_config = {
+        "name": "PIR Motion Sensor", 
+        "state_topic": "smartbin/bin-01/pir-01/motion", 
+        "payload_on": "detected", 
+        "payload_off": "clear", 
+        "device_class": "motion", 
+        "unique_id": "pir_01_motion", 
+        "device": { 
+            "identifiers": ["pir-01"], 
+            "name": "PIR Sensor 01", 
+            "model": "HC-SR501", 
+            "manufacturer": "Generic" 
+        } 
+    }
+    client.publish("homeassistant/binary_sensor/pir_01_motion/config", json.dumps(motion_config), retain=True)
+
+    status_config = { 
+        "name": "Wastebin Status", 
+        "state_topic": "smartbin/bin-01/status", 
+        "value_template": "{{ value_json.state }}", 
+        "json_attributes_topic": "smartbin/bin-01/status", 
+        "unique_id": "wastebin_01_status", 
+        "device": { 
+            "identifiers": ["bin-01"], 
+            "name": "Smart Wastebin 01", 
+            "model": "Smart Wastebin v1", 
+            "manufacturer": "Jumbo xoreuo" 
+        } 
+    }
+    client.publish("homeassistant/sensor/wastebin_01_status/config", json.dumps(status_config), retain=True)
+
+    count_config = { 
+        "name": "Motion Event Count", 
+        "state_topic": "smartbin/bin-01/pir-01/event_count", 
+        "unit_of_measurement": "events", 
+        "icon": "mdi:motion-sensor", 
+        "unique_id": "wastebin_01_motion_count", 
+        "device": { 
+            "identifiers": ["bin-01"], 
+            "name": "Smart Wastebin 01" 
+        } 
+    }
+    client.publish("homeassistant/sensor/wastebin_01_motion_count/config", json.dumps(count_config), retain=True)
+
+
 @click.command()
 @click.option("--device-id", default=SENSOR_ID, help="Unique identifier for this device")
 @click.option("--pin", type=int, default=4, help="GPIO pin the PIR is connected to")
@@ -79,11 +127,27 @@ def main(
 
     client.publish(status_topic, "online", qos=1, retain=True)
 
+    publish_discovery(client)
+
     sampler = PirSampler(pin=pin)
     interp = PirInterpreter(cooldown_s=cooldown, min_high_s=min_high)
 
     run_id = str(uuid.uuid4())
     seq = 0
+    
+    event_count = 0
+    ha_motion_state = "clear"
+    last_event_time_s = 0
+    
+    client.publish("smartbin/bin-01/pir-01/motion", ha_motion_state, retain=True)
+    client.publish("smartbin/bin-01/pir-01/event_count", str(event_count), retain=True)
+    init_status = {
+        "state": "active",
+        "location": "Lab Room 101",
+        "last_motion": "None",
+        "total_events_today": event_count
+    }
+    client.publish("smartbin/bin-01/status", json.dumps(init_status), retain=True)
 
     print("[Producer] Started reading the sensor (while not stopped). Press Ctrl+C to stop.")
     
@@ -96,6 +160,21 @@ def main(
 
         for event in events:
             seq += 1
+            event_count += 1
+            last_event_time_s = current_time_s
+            ha_motion_state = "detected"
+            last_motion_iso = utc_now_iso()
+            
+            # Publish HA states
+            client.publish("smartbin/bin-01/pir-01/motion", ha_motion_state, retain=True)
+            client.publish("smartbin/bin-01/pir-01/event_count", str(event_count), retain=True)
+            status_payload = {
+                "state": "active",
+                "location": "Lab Room 101",
+                "last_motion": last_motion_iso,
+                "total_events_today": event_count
+            }
+            client.publish("smartbin/bin-01/status", json.dumps(status_payload), retain=True)
             
             record = {
                 "@context":        JSONLD_CONTEXT,
@@ -106,7 +185,7 @@ def main(
                 "wastebin_ref":    WASTEBIN_ID,
                 "environment_ref": ENVIRONMENT_ID,
 
-                "event_time":      utc_now_iso(),
+                "event_time":      last_motion_iso,
                 "event_type":      "motion",
                 "motion_state":    "detected",
 
@@ -120,6 +199,12 @@ def main(
             
             if verbose:
                 print(f"[Producer] Sent event: {event}")
+
+        if ha_motion_state == "detected" and (current_time_s - last_event_time_s) > cooldown:
+            ha_motion_state = "clear"
+            client.publish("smartbin/bin-01/pir-01/motion", ha_motion_state, retain=True)
+            if verbose:
+                print(f"[Producer] Motion cleared after cooldown.")
 
         time.sleep(sample_interval)
 
