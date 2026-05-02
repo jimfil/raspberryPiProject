@@ -211,7 +211,7 @@ def main(
     end_status = {
         "state": "offline",
         "location": "Lab Room 101",
-        "last_motion": last_motion_iso if last_motion_iso != "None" else "none",
+        "last_motion": last_motion_iso if hasattr(last_motion_iso) else "none",
         "total_events_today": event_count
     }
 
