@@ -96,7 +96,7 @@ def publish_discovery(client):
 @click.option("--broker", default="localhost", help="MQTT Broker address")
 @click.option("--port", type=int, default=1883, help="MQTT Broker port")
 @click.option("--topic", default="smartbin/bin-01/pir-01/events", help="MQTT topic for events")
-@click.option("--status-topic", default="smartbin/bin-01/pir-01/status", help="MQTT topic for sensor status")
+@click.option("--status-topic", default="smartbin/bin-01/status", help="MQTT topic for sensor status")
 @click.option("--qos", type=click.IntRange(0, 2), default=1, help="MQTT QoS (0=At most once, 1=At least once, 2=Exactly once)")
 @click.option("--verbose", is_flag=True, help="Print status messages to the terminal")
 def main(
