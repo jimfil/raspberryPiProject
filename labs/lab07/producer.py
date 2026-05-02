@@ -144,7 +144,7 @@ def main(
     }
     client.publish(status_topic, json.dumps(init_status), retain=True)
     
-    
+    last_motion_iso = None
 
     print("[Producer] Started reading the sensor (while not stopped). Press Ctrl+C to stop.")
     
