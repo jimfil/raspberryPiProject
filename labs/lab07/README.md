@@ -81,7 +81,7 @@ Ans: The retain flag allows the Home Assistant to detect the message even if it 
 
 **RQ6: What is the device block in a discovery message? What happens in the Home Assistant UI when multiple entities share the same device.identifiers?**
 
-Ans: 
+Ans: The device block in an MQTT discovery message is a JSON object within the configuration payload that enables Home Assistant to group multiple entities (sensors, switches, etc.) under a single physical or logical device in the UI. When multiple MQTT discovery messages share the same device.identifiers, Home Assistant creates a single device entry in the UI and automatically lists all associated entities together, essentially grouping the entities with common functions.
 
 
 
