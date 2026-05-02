@@ -138,7 +138,7 @@ Ans:
 
 **RQ15: Give one example of an automation that would be useful in a real Smart Wastebin deployment that involves a condition (not just trigger → action). Describe the trigger, the condition, and the action.**
 
-Ans:
+Ans: An automation that would be useful in a smart wastebin system is the ability to detect when the bin is full. A useful automation to prevent overflow involves a trigger (ultrasonic sensor measuring high trash level), a condition (time of day is before 8:00 AM), and an action (send a notification to staff to empty it immediately).
 
 
 
@@ -168,12 +168,12 @@ Ans:
 
 **RQ20: Home Assistant runs locally on the Pi, no cloud needed. Why does this matter for an edge IoT deployment?**
 
-Ans:
+Ans: Home Assistant running locally on a Raspberry Pi—without needing the cloud—is a foundational approach to edge IoT deployment. It matters because it ensures that data processing, automation logic, and device control happen on-site rather than in a distant data center, providing critical advantages in reliability, privacy, speed, and long-term viability. 
 
 
 
 **RQ21: If your project had 10 wastebins with 3 sensors each, how would the MQTT discovery approach scale compared to manually configuring 30 entities?**
 
-Ans:
+Ans: MQTT discovery scales significantly better than manual configuration for a project with 10 wastebins (30 sensors/entities), transforming a tedious manual process into an automated, plug-and-play system. With MQTT Discovery, the device (sensor node) registers itself with Home Assistant upon powering up, whereas manual configuration requires creating 30 separate configuration entries in YAML, wastin a lot of time of setting and maintenance.
 
 
