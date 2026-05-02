@@ -41,8 +41,12 @@ mosquitto_sub -h localhost -t "test/hello" &
 mosquitto_pub -h localhost -t "test/hello" -m "Hello MQTT"
 ```
 
+Run the producer:
+```bash
+python producer.py --broker localhost --port 1883 --device-id pir-01 --pin 17 --verbose
+```
 
-
+And open on a browser the home assistant dashboard on `http://{pi's ip address}:8123`.
 ---
 
 ## Section B: Report
