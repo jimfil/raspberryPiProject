@@ -144,7 +144,7 @@ Ans: An automation that would be useful in a smart wastebin system is the abilit
 
 **RQ16: Your producer now publishes to two kinds of topics: the data topic (full JSON events for the consumer) and the HA state topics (simple values for Home Assistant). Why not use the same topic for both?**
 
-Ans:
+Ans: Because the HA consumer cannot read the full JSON events, it can only read simple values. Using the same topic for both would require us to parse the full JSON events, which is not a functionality of HA. 
 
 
 
@@ -152,11 +152,12 @@ Ans:
 
 Ans:
 
+![Home Assistant Dashboard](dashboard.png)
 
 
 **RQ18: What happens in Home Assistant when the producer is stopped? Does the motion sensor show “unavailable”, “clear”, or something else? How could you improve this?**
 
-Ans:
+Ans: When the producer is stopped, the motion sensor shows "unavailable". We could improve this by publishing an offline message to the status topic when the producer is stopped, which is what we did in our producer.py file.
 
 
 
