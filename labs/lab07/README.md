@@ -67,13 +67,59 @@ Ans: The “Home Assistant OS” method integrates the Home Assistant in a devic
 
 **RQ3: What is an entity in Home Assistant? Give three examples of entities in your setup and their current states.**
 
-Ans: Entities are the basic building blocks to hold data in Home Assistant. An entity represents a sensor, action, or function in Home Assistant. Entities are used to monitor physical properties or to control other entities. In our setup,
+Ans: Entities are the basic building blocks to hold data in Home Assistant. An entity represents a sensor, action, or function in Home Assistant. Entities are used to monitor physical properties or to control other entities. In our setup:
+
+1. **PIR Motion Sensor** (`binary_sensor.pir_motion_sensor`) — state: `clear` (no motion) or `detected` (motion present).
+2. **Wastebin Status** (`sensor.wastebin_status`) — state: `active` or `offline`, with JSON attributes `location`, `last_motion`, and `total_events_today`.
+3. **Motion Event Count** (`sensor.motion_event_count`) — state: a numeric value (e.g., `5`) representing the total number of motion events detected since the producer started, measured in `events`.
 
 
 
 **RQ4: How does Home Assistant learn about your sensors? Explain the MQTT discovery mechanism, what topic do you publish to, and what does the payload contain?**
 
-Ans: Home Assistant learns about sensors via MQTT Discovery by listening for JSON configuration messages published by devices to specific topics on an MQTT broker. This automated process allows devices (like ESP8266 or Node-RED) to identify themselves, their capabilities, and their state topics, allowing Home Assistant to auto-configure them without manual YAML entry. We published to the topic: "", a configuration message containig the payload:
+Ans: Home Assistant learns about sensors via MQTT Discovery by listening for JSON configuration messages published by devices to specific topics on an MQTT broker. This automated process allows devices to identify themselves, their capabilities, and their state topics, allowing Home Assistant to auto-configure them without manual YAML entry.
+
+We published three discovery messages (all with `retain=True`):
+
+- **Topic:** `homeassistant/binary_sensor/pir_01_motion/config`  
+  **Payload:**
+  ```json
+  {
+    "name": "PIR Motion Sensor",
+    "state_topic": "smartbin/bin-01/pir-01/motion",
+    "payload_on": "detected",
+    "payload_off": "clear",
+    "device_class": "motion",
+    "unique_id": "pir_01_motion",
+    "device": {"identifiers": ["pir-01"], "name": "PIR Sensor 01", "model": "HC-SR501", "manufacturer": "Generic"}
+  }
+  ```
+
+- **Topic:** `homeassistant/sensor/wastebin_01_status/config`  
+  **Payload:**
+  ```json
+  {
+    "name": "Wastebin Status",
+    "state_topic": "smartbin/bin-01/status",
+    "value_template": "{{ value_json.state }}",
+    "json_attributes_topic": "smartbin/bin-01/status",
+    "unique_id": "wastebin_01_status",
+    "device": {"identifiers": ["bin-01"], "name": "Smart Wastebin 01", "model": "Smart Wastebin v1", "manufacturer": "Jumbo xoreuo"}
+  }
+  ```
+
+- **Topic:** `homeassistant/sensor/wastebin_01_motion_count/config`  
+  **Payload:**
+  ```json
+  {
+    "name": "Motion Event Count",
+    "state_topic": "smartbin/bin-01/pir-01/event_count",
+    "unit_of_measurement": "events",
+    "icon": "mdi:motion-sensor",
+    "unique_id": "wastebin_01_motion_count",
+    "device": {"identifiers": ["bin-01"], "name": "Smart Wastebin 01"}
+  }
+  ```
 
 
 
@@ -102,23 +148,46 @@ json_attributes_topic: Subscribes to a JSON payload to populate additional infor
 
 Ans:
 
+| Entity Name | Type | State Topic | Reason |
+|---|---|---|---|
+| PIR Motion Sensor | `binary_sensor` | `smartbin/bin-01/pir-01/motion` | Motion is a binary state (detected / clear), so `binary_sensor` is the correct type. |
+| Wastebin Status | `sensor` | `smartbin/bin-01/status` | The status carries multiple values (state, location, last_motion, event count) encoded as JSON, so a `sensor` with `value_template` and `json_attributes_topic` was ideal. |
+| Motion Event Count | `sensor` | `smartbin/bin-01/pir-01/event_count` | A running numeric counter needs a `sensor` with a unit of measurement (`events`). A HA Counter helper was not used here because the producer maintains the count and publishes it directly. |
+| Wastebin Motion Counter | `counter` | None | This is a HA helper entity (not MQTT-based) that is incremented by the "Motion Alert" automation. It provides a persistent daily count separate from the MQTT event stream, enabling more flexible automation logic and historical tracking within HA. |
+
+
+We have the excluded the automations from this list as they are provided below in RQ13 and RQ14.
 
 
 **RQ9: What device_class did you use for your motion sensor? What does the device class affect in the Home Assistant UI?**
 
-Ans:
+Ans: We used `device_class: motion` for the PIR motion sensor. The device class affects the Home Assistant UI in several ways: it determines the icon displayed for the entity (a motion-wave icon instead of a generic sensor icon), sets the human-readable state labels (`Detected` / `Clear` instead of raw `ON`/`OFF`), controls how the entity appears in dashboards and history graphs, and enables HA to correctly categorise it in the "Binary Sensors" section of the device page.
 
 
 
 **RQ10: What additional entities did you create beyond the minimum? Why did you choose those?**
 
-Ans:
+Ans: Beyond the minimum required binary motion sensor, we added two extra entities:
+
+1. **Wastebin Status** (`sensor`) — provides richer context about the bin (location, last motion timestamp, total events today, online/offline state). This is useful for operational monitoring without having to look at raw MQTT messages.
+2. **Motion Event Count** (`sensor`) — tracks the cumulative number of motion events. This allows trend analysis (e.g., how busy a bin is over time) directly from the HA dashboard and history graphs.
 
 
 
 **RQ11: How did you group your entities under devices? Draw or describe the device → entity hierarchy.**
 
-Ans:
+Ans: We used the `device` block in each discovery payload with shared `identifiers` to group entities. The hierarchy is:
+
+```
+PIR Sensor 01  (identifier: "pir-01", model: HC-SR501)
+└── PIR Motion Sensor  (binary_sensor)
+
+Smart Wastebin 01  (identifier: "bin-01", model: Smart Wastebin v1)
+├── Wastebin Status      (sensor)
+└── Motion Event Count  (sensor)
+```
+
+The PIR sensor entity is registered under the **PIR Sensor 01** device because it represents the physical hardware sensor. The status and count entities are registered under **Smart Wastebin 01** because they describe the state of the bin as a whole, not just the PIR chip.
 
 
 
@@ -131,13 +200,129 @@ Ans: The Home Assistant Counter helper works by incrementing a counter every tim
 **RQ13: Paste the YAML of your “Count motion events” automation. Explain each part (trigger, condition, action).**
 
 Ans:
+```yaml
+alias: Count Motion Events
+description: ""
+triggers:
+  - trigger: state
+    entity_id:
+      - binary_sensor.pir_sensor_01_pir_motion_sensor
+    to:
+      - "on"
+    from:
+      - "off"
+conditions: []
+actions:
+  - action: counter.increment
+    target:
+      entity_id: counter.wastebin_motion_count
+    data: {}
+mode: single
+```
+
+- **Trigger:** Fires every time `binary_sensor.pir_sensor_01_pir_motion_sensor` transitions **from** `off` **to** `on` — meaning a new motion detection event just started. Using both `from` and `to` prevents the automation from firing on the `off → off` edge that can occur during HA restarts.
+- **Condition:** None (`conditions: []`) — every rising edge unconditionally increments the counter, no extra checks needed.
+- **Action:** Calls `counter.increment` on `counter.wastebin_motion_count`, adding 1 to the persistent counter entity.
+- **Mode `single`:** If motion fires again before the action finishes (virtually instant here), duplicate runs are ignored, preventing double-counts.
 
 
 
 **RQ14: What other automation(s) did you create? Paste the YAML and explain the trigger, condition (if any), and action.**
 
 Ans:
+```yaml
+alias: Daily counter reset
+description: ""
+triggers:
+  - trigger: time
+    at: "00:00:00"
+    weekday:
+      - sun
+      - mon
+      - tue
+      - wed
+      - thu
+      - fri
+      - sat
+conditions: []
+actions:
+  - action: counter.reset
+    metadata: {}
+    target:
+      entity_id: counter.wastebin_motion_count
+    data: {}
+  - action: persistent_notification.create
+    metadata: {}
+    data:
+      title: Daily counter reset
+      message: Counter reset
+mode: single
+```
 
+**Daily counter reset — explanation:**
+- **Trigger:** A `time` trigger fires every day at exactly **midnight (00:00:00)**, every day of the week (`sun` through `sat`).
+- **Condition:** None — the reset always happens at midnight regardless of any other state.
+- **Actions (two steps):**
+  1. `counter.reset` — resets `counter.wastebin_motion_count` back to 0, giving a clean daily count.
+  2. `persistent_notification.create` — posts a brief "Counter reset" notification in the HA UI so operators know the daily cycle restarted.
+- **Mode `single`:** Prevents any accidental duplicate reset if the clock fires more than once.
+
+```yaml
+alias: High activity alert
+description: ""
+triggers:
+  - trigger: state
+    entity_id:
+      - counter.wastebin_motion_count
+conditions:
+  - condition: numeric_state
+    entity_id: counter.wastebin_motion_count
+    above: 50
+    below: 998.8
+actions:
+  - action: persistent_notification.create
+    metadata: {}
+    data:
+      title: High Usage Alert
+      message: "Smart Wastebin Full "
+mode: single
+
+```
+
+**High activity alert — explanation:**
+- **Trigger:** Fires whenever the state of `counter.wastebin_motion_count` changes (i.e., every time the counter increments).
+- **Condition:** `numeric_state` — the notification is only sent when the counter value is **above 50** and **below 998.8** (≈ the counter's max). This means alerts fire once the bin has seen more than 50 motion events in the current day, indicating high usage, but stops before the counter rolls over at its maximum.
+- **Action:** `persistent_notification.create` posts a "Smart Wastebin Full" alert in the HA UI.
+- **Mode `single`:** Ensures only one alert is active at a time while the counter keeps climbing.
+
+```yaml
+alias: Motion Alert
+description: ""
+triggers:
+  - type: motion
+    device_id: ed164895ea709143270a80a71561cd58
+    entity_id: 5acbe301b5371dcd759f4fb7aff6f7c5
+    domain: binary_sensor
+    trigger: device
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 2
+conditions: []
+actions:
+  - action: persistent_notification.create
+    metadata: {}
+    data:
+      message: Motion detected at Smart Wastebin 01 — {{ now().strftime('%H:%M:%S') }}
+      title: Wastebin Alert
+mode: single
+```
+
+**Motion Alert — explanation:**
+- **Trigger:** A `device` trigger tied to the physical PIR binary sensor device (referenced by `device_id` and `entity_id` internal HA identifiers). It fires when the sensor reports a **motion** event that has been sustained for **2 seconds** (`for: seconds: 2`), filtering out brief spurious spikes.
+- **Condition:** None — any confirmed 2-second motion event triggers the notification.
+- **Action:** `persistent_notification.create` sends a timestamped alert: *"Motion detected at Smart Wastebin 01 — HH:MM:SS"*. The timestamp is rendered live using the Jinja2 template `{{ now().strftime('%H:%M:%S') }}`.
+- **Mode `single`:** If another motion event arrives before the action completes, the duplicate is dropped.
 
 
 **RQ15: Give one example of an automation that would be useful in a real Smart Wastebin deployment that involves a condition (not just trigger → action). Describe the trigger, the condition, and the action.**
