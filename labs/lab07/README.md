@@ -162,7 +162,7 @@ Ans:
 
 **RQ19: Compare the effort of building a custom web dashboard vs. using Home Assistant. What do you gain? What do you give up?**
 
-Ans:
+Ans: Using home Assistant, you can have a functional dashboard in minutes due to automatic device discovery and default "Overview" dashboards. However, achieving a highly polished, specific aesthetic requires a steep learning curve involving YAML, custom "strategies," and community themes. In the other hand, building a dashboard from scratch (e.g., using React or Vue) requires you to manually write code for every interaction and display element. You must also handle the "backend" logic/authentication, state management, and connecting to thousands of potential device APIs that HA handles out of the box.
 
 
 
