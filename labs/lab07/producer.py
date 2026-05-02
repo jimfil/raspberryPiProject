@@ -143,6 +143,8 @@ def main(
         "total_events_today": event_count
     }
     client.publish(status_topic, json.dumps(init_status), retain=True)
+    
+    
 
     print("[Producer] Started reading the sensor (while not stopped). Press Ctrl+C to stop.")
     
@@ -206,7 +208,14 @@ def main(
     if verbose:
         print("[Producer] Terminating...")
     
-    client.publish(status_topic, "offline", qos=1, retain=True)
+    end_status = {
+        "state": "offline",
+        "location": "Lab Room 101",
+        "last_motion": last_motion_iso if last_motion_iso != "None" else "none",
+        "total_events_today": event_count
+    }
+
+    client.publish(status_topic, json.dumps(end_status), qos=1, retain=True)
     time.sleep(0.5) 
     
     client.loop_stop()
