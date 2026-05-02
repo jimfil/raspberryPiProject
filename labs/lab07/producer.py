@@ -136,13 +136,13 @@ def main(
     event_count = 0
     ha_motion_state = "clear"
     last_event_time_s = 0
-    client.publish(status_topic, json.dumps(init_status), retain=True)
     init_status = {
         "state": "active",
         "location": "Lab Room 101",
         "last_motion": "None",
         "total_events_today": event_count
     }
+    client.publish(status_topic, json.dumps(init_status), retain=True)
 
     print("[Producer] Started reading the sensor (while not stopped). Press Ctrl+C to stop.")
     
