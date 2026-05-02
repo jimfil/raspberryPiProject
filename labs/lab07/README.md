@@ -87,7 +87,10 @@ Ans: The device block in an MQTT discovery message is a JSON object within the c
 
 **RQ7: What is the difference between a state_topic and a json_attributes_topic? When would you use each?**
 
-Ans:
+Ans: 
+state_topic: Defines the main topic for the entity's primary state (e.g., ON/OFF, temperature value).
+
+json_attributes_topic: Subscribes to a JSON payload to populate additional information (attributes) about the entity (e.g., battery level, signal strength).
 
 
 
