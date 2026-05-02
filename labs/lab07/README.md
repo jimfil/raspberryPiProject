@@ -41,9 +41,6 @@ mosquitto_sub -h localhost -t "test/hello" &
 mosquitto_pub -h localhost -t "test/hello" -m "Hello MQTT"
 ```
 
----
-
-
 
 
 ---
@@ -84,13 +81,16 @@ Ans: The retain flag allows the Home Assistant to detect the message even if it 
 
 **RQ6: What is the device block in a discovery message? What happens in the Home Assistant UI when multiple entities share the same device.identifiers?**
 
-Ans: 
+Ans: The device block in an MQTT discovery message is a JSON object within the configuration payload that enables Home Assistant to group multiple entities (sensors, switches, etc.) under a single physical or logical device in the UI. When multiple MQTT discovery messages share the same device.identifiers, Home Assistant creates a single device entry in the UI and automatically lists all associated entities together, essentially grouping the entities with common functions.
 
 
 
 **RQ7: What is the difference between a state_topic and a json_attributes_topic? When would you use each?**
 
-Ans:
+Ans: 
+state_topic: Defines the main topic for the entity's primary state (e.g., ON/OFF, temperature value).
+
+json_attributes_topic: Subscribes to a JSON payload to populate additional information (attributes) about the entity (e.g., battery level, signal strength).
 
 
 
@@ -120,7 +120,7 @@ Ans:
 
 **RQ12: How does the Home Assistant Counter helper work? What services can you call on it?**
 
-Ans:
+Ans: The Home Assistant Counter helper works by incrementing a counter every time an MQTT message is received on the configured topic. It allows you to define a maximum value and a reset value. You can call services on it to reset the counter or manually increment it.
 
 
 
@@ -138,7 +138,7 @@ Ans:
 
 **RQ15: Give one example of an automation that would be useful in a real Smart Wastebin deployment that involves a condition (not just trigger → action). Describe the trigger, the condition, and the action.**
 
-Ans:
+Ans: An automation that would be useful in a smart wastebin system is the ability to detect when the bin is full. A useful automation to prevent overflow involves a trigger (ultrasonic sensor measuring high trash level), a condition (time of day is before 8:00 AM), and an action (send a notification to staff to empty it immediately).
 
 
 
@@ -162,18 +162,18 @@ Ans:
 
 **RQ19: Compare the effort of building a custom web dashboard vs. using Home Assistant. What do you gain? What do you give up?**
 
-Ans:
+Ans: Using home Assistant, you can have a functional dashboard in minutes due to automatic device discovery and default "Overview" dashboards. However, achieving a highly polished, specific aesthetic requires a steep learning curve involving YAML, custom "strategies," and community themes. In the other hand, building a dashboard from scratch (e.g., using React or Vue) requires you to manually write code for every interaction and display element. You must also handle the "backend" logic/authentication, state management, and connecting to thousands of potential device APIs that HA handles out of the box.
 
 
 
 **RQ20: Home Assistant runs locally on the Pi, no cloud needed. Why does this matter for an edge IoT deployment?**
 
-Ans:
+Ans: Home Assistant running locally on a Raspberry Pi—without needing the cloud—is a foundational approach to edge IoT deployment. It matters because it ensures that data processing, automation logic, and device control happen on-site rather than in a distant data center, providing critical advantages in reliability, privacy, speed, and long-term viability. 
 
 
 
 **RQ21: If your project had 10 wastebins with 3 sensors each, how would the MQTT discovery approach scale compared to manually configuring 30 entities?**
 
-Ans:
+Ans: MQTT discovery scales significantly better than manual configuration for a project with 10 wastebins (30 sensors/entities), transforming a tedious manual process into an automated, plug-and-play system. With MQTT Discovery, the device (sensor node) registers itself with Home Assistant upon powering up, whereas manual configuration requires creating 30 separate configuration entries in YAML, wastin a lot of time of setting and maintenance.
 
 
