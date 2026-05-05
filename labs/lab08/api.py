@@ -43,15 +43,17 @@ events_parser.add_argument("end", type=str, help="End datetime (ISO format)")
 
 bin_parser = reqparse.RequestParser()
 bin_parser.add_argument("bin_id", type=str, required=True, help="Bin unique identifier")
-bin_parser.add_argument("limit", type=int, default=50, help="Max bins to return")
-bin_parser.add_argument("offset", type=int, default=0, help="Offset")
+
+allbins_parser = reqparse.RequestParser()
+allbins_parser.add_argument("limit", type=int, default=50, help="Max bins to return")
+allbins_parser.add_argument("offset", type=int, default=0, help="Offset")
 
 mqtt_parser = reqparse.RequestParser()
 mqtt_parser.add_argument("topic", type=str, required=True, help="MQTT topic to publish to")
 mqtt_parser.add_argument("message", type=str, required=True, help="Message payload")
 
 @ns_bins.route("/")
-@ns_bins.expect(bin_parser)
+@ns_bins.expect(allbins_parser)
 class BinList(Resource):
     @ns_bins.marshal_with(bin_model, as_list=True)
     def get(self):
