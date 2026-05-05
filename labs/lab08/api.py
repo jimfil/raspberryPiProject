@@ -175,8 +175,12 @@ class MqttPublish(Resource):
         
 
 
+
+
+
 @ns_mqtt.route("/topics")
 class MqttTopics(Resource):
+    @ns_mqtt.marshal_list_with(sensor_model)
     def get(self):
         """List known MQTT topics and their last retained value"""
         with topic_lock:
