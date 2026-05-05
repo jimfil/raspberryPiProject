@@ -114,6 +114,14 @@ class SensorItem(Resource):
         return {"sensor_id": sensor_id}, 200
 
 
+
+
+
+
+
+
+
+
 @ns_mqtt.route("/publish")
 @ns_mqtt.expect(mqtt_parser)
 class MqttPublish(Resource):
