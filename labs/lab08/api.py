@@ -2,6 +2,7 @@ from flask import Flask, request
 from flask_restx import Api, Resource
 import json
 import os
+import paho.mqtt.client as mqtt
 
 app = Flask(__name__)
 api = Api(
@@ -72,7 +73,22 @@ class SensorItem(Resource):
 class MqttPublish(Resource):
     def post(self):
         """Publish a message to an MQTT topic"""
-        return {"message": "Message published"}, 200
+        try:
+            payload = request.get_json()
+            topic = payload.get("topic")
+            message = payload.get("message")
+
+            if not topic or message is None:
+                return {"error": "Missing topic or message in payload"}, 400
+
+            client = mqtt.Client()
+            client.connect("localhost", 1883, keepalive=60)
+            client.publish(topic, message)
+            client.disconnect()
+            return {"message": "Message published"}, 200
+        except Exception as e:
+            return {"message": str(e)}, 500
+        
 
 
 @ns_mqtt.route("/topics")
