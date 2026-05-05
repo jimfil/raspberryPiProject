@@ -1,5 +1,6 @@
 from flask import Flask, request
-from flask_restx import Api, Resource
+from flask_restx import Api, Resource, fields
+from apiFunc import load_events, EVENTS_FILE
 import json
 import paho.mqtt.client as mqtt
 
@@ -16,6 +17,30 @@ ns_sensors = api.namespace("sensors", description="Sensor operations")
 ns_mqtt = api.namespace("mqtt", description="MQTT operations")
 ns_events = api.namespace("events", description="Motion events from pipeline")
 
+event_model = api.model('Event', {
+    '@context': fields.Raw(description='JSON-LD Context'),
+    '@type': fields.String(description='Entity Type'),
+    'device_id': fields.String(description='Device ID'),
+    'sensor_ref': fields.String(description='Sensor Reference'),
+    'wastebin_ref': fields.String(description='Wastebin Reference'),
+    'environment_ref': fields.String(description='Environment Reference'),
+    'event_time': fields.String(description='Event Time'),
+    'event_type': fields.String(description='Event Type'),
+    'motion_state': fields.String(description='Motion State'),
+    'seq': fields.Integer(description='Sequence Number'),
+    'run_id': fields.String(description='Run ID'),
+    'ingest_time': fields.String(description='Ingest Time'),
+    'pipeline_latency_ms': fields.Float(description='Pipeline Latency (ms)')
+})
+
+events_parser = api.parser()
+events_parser.add_argument('limit', type=int, help='Maximum number of events to return', location='args')
+
+def get_sensor_for_bin(bin_id):
+    mapping = {
+        "bin-01": "urn:dev:team05:pir-01"
+    }
+    return mapping.get(bin_id)
 
 
 @ns_bins.route("/")
@@ -41,9 +66,17 @@ class BinSensors(Resource):
 
 @ns_bins.route("/<string:bin_id>/events")
 class BinEvents(Resource):
+    @ns_bins.expect(events_parser)
+    @ns_bins.marshal_list_with(event_model)
     def get(self, bin_id):
         """Get motion events for a specific bin"""
-        return {"bin_id": bin_id, "events": []}, 200
+        args = events_parser.parse_args()
+        events = load_events(
+            EVENTS_FILE,
+            limit=args.get("limit"),
+            sensor_id=get_sensor_for_bin(bin_id),
+        )
+        return events
 
 
 @ns_bins.route("/<string:bin_id>/emptied")
@@ -98,19 +131,16 @@ class MqttTopics(Resource):
 
 @ns_events.route("/")
 class EventList(Resource):
+    @ns_events.expect(events_parser)
+    @ns_events.marshal_list_with(event_model)
     def get(self):
         """List all motion events produced by the pipeline"""
-        events = []
-        try:
-            with open("events.log", "r") as f:
-                for line in f:
-                    line = line.strip()
-                    if line:
-                        events.append(json.loads(line))
-        except Exception as e:
-            return {"error": str(e)}, 500
-        
-        return {"events": events}, 200
+        args = events_parser.parse_args()
+        events = load_events(
+            EVENTS_FILE,
+            limit=args.get("limit")
+        )
+        return events
 
 
 if __name__ == "__main__":
