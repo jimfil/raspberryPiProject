@@ -161,17 +161,14 @@ class MqttPublish(Resource):
     def post(self):
         """Publish a message to an MQTT topic"""
         try:
-            payload = request.get_json()
-            topic = payload.get("topic")
-            message = payload.get("message")
+            args = mqtt_parser.parse_args()
+            topic = args.get("topic")
+            message = args.get("message")
 
             if not topic or message is None:
                 return {"error": "Missing topic or message in payload"}, 400
 
-            client = mqtt.Client()
-            client.connect("localhost", 1883, keepalive=60)
-            client.publish(topic, message)
-            client.disconnect()
+            mqtt_client.publish(topic, message)
             return {"message": "Message published"}, 200
         except Exception as e:
             return {"message": str(e)}, 500
