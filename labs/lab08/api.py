@@ -19,9 +19,17 @@ def on_message(client, userdata, msg):
             "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
         }
 
-mqtt_client = mqtt.Client(client_id="wastebin-api", clean_session=False)
+try:
+    mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id="wastebin-api", clean_session=False)
+except AttributeError:
+    mqtt_client = mqtt.Client(client_id="wastebin-api", clean_session=False)
+
 mqtt_client.on_message = on_message
-mqtt_client.connect("localhost", 1883, keepalive=60)
+try:
+    mqtt_client.connect_async("localhost", 1883, keepalive=60)
+except Exception as e:
+    print(f"Warning: MQTT connection failed: {e}")
+    
 mqtt_client.subscribe("smartbin/#", qos=1)
 mqtt_client.loop_start()
 
@@ -177,25 +185,26 @@ class MqttPublish(Resource):
     def post(self):
         """Publish a message to an MQTT topic"""
         try:
-            payload = request.get_json()
-            topic = payload.get("topic")
-            message = payload.get("message")
+            args = mqtt_parser.parse_args()
+            topic = args.get("topic")
+            message = args.get("message")
 
             if not topic or message is None:
                 return {"error": "Missing topic or message in payload"}, 400
 
-            client = mqtt.Client()
-            client.connect("localhost", 1883, keepalive=60)
-            client.publish(topic, message)
-            client.disconnect()
+            mqtt_client.publish(topic, message)
             return {"message": "Message published"}, 200
         except Exception as e:
             return {"message": str(e)}, 500
         
 
 
+
+
+
 @ns_mqtt.route("/topics")
 class MqttTopics(Resource):
+    @ns_mqtt.marshal_list_with(sensor_model)
     def get(self):
         """List known MQTT topics and their last retained value"""
         with topic_lock:
