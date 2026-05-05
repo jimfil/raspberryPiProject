@@ -36,6 +36,13 @@ mqtt_message_model = api.model("MqttMessage", {
     "message": fields.String(required=True, description="Message payload"),
 })
 
+sensor_model = api.model("Sensor", {
+    "topic": fields.String(required=True, description="MQTT topic to publish to"),
+    "payload" : fields.String(required=True, description="Message payload"),
+    "qos" : fields.Integer(required=True, description="Quality of Service"),
+    "retain" : fields.Boolean(required=True, description="Retain this message on the broker", default=False),
+})
+
 events_parser = reqparse.RequestParser()
 events_parser.add_argument("limit", type=int, default=50, help="Max events to return")
 events_parser.add_argument("start", type=str, help="Start datetime (ISO format)")
