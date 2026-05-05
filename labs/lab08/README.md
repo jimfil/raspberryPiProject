@@ -29,24 +29,7 @@ pip install -r requirements.txt
 ### Prerequisites: MQTT Broker
 You need a running MQTT broker (e.g., Mosquitto) before starting the producer and consumer:
 
-**On Raspberry Pi:**
-```bash
-sudo apt-get install mosquitto mosquitto-clients
-sudo systemctl start mosquitto
-```
 
-Verify the broker is running:
-```bash
-mosquitto_sub -h localhost -t "test/hello" &
-mosquitto_pub -h localhost -t "test/hello" -m "Hello MQTT"
-```
-
-Run the producer:
-```bash
-python producer.py --broker localhost --port 1883 --device-id pir-01 --pin 17 --verbose
-```
-
-And open on a browser the home assistant dashboard on `http://{pi's ip address}:8123`.
 ---
 
 ## Section B: Report

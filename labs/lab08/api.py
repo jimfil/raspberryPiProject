@@ -95,6 +95,24 @@ mqtt_parser = reqparse.RequestParser()
 mqtt_parser.add_argument("topic", type=str, required=True, help="MQTT topic to publish to")
 mqtt_parser.add_argument("message", type=str, required=True, help="Message payload")
 
+sensors_registry = [
+    {
+        "id": "urn:dev:team05:pir-01",
+        "type": "PIR",
+        "model": "HC-SR501",
+        "mounted_on": "bin-01",
+        "status": "active"
+    }
+]
+
+def find_sensor(sensor_id):
+    for s in sensors_registry:
+        if s["id"] == sensor_id:
+            return s
+    return None
+
+
+
 @ns_bins.route("/")
 @ns_bins.expect(allbins_parser)
 class BinList(Resource):
@@ -143,21 +161,7 @@ class BinEmptied(Resource):
         return {"message": f"Bin {bin_id} emptied"}, 200
 
 
-sensors_registry = [
-    {
-        "id": "urn:dev:team05:pir-01",
-        "type": "PIR",
-        "model": "HC-SR501",
-        "mounted_on": "bin-01",
-        "status": "active"
-    }
-]
 
-def find_sensor(sensor_id):
-    for s in sensors_registry:
-        if s["id"] == sensor_id:
-            return s
-    return None
 
 
 @ns_sensors.route("/")
