@@ -3,6 +3,27 @@ from flask_restx import Api, Resource, fields, reqparse
 from apiFunc import load_events, EVENTS_FILE
 import json
 import paho.mqtt.client as mqtt
+import threading
+from datetime import datetime, timezone
+
+topic_store = {}
+topic_lock = threading.Lock()
+
+def on_message(client, userdata, msg):
+    with topic_lock:
+        topic_store[msg.topic] = {
+            "topic": msg.topic,
+            "payload": msg.payload.decode("utf-8", errors="replace"),
+            "qos": msg.qos,
+            "retain": msg.retain,
+            "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+        }
+
+mqtt_client = mqtt.Client(client_id="wastebin-api", clean_session=False)
+mqtt_client.on_message = on_message
+mqtt_client.connect("localhost", 1883, keepalive=60)
+mqtt_client.subscribe("smartbin/#", qos=1)
+mqtt_client.loop_start()
 
 app = Flask(__name__)
 api = Api(
@@ -126,9 +147,6 @@ class SensorItem(Resource):
 
 
 
-
-
-
 @ns_mqtt.route("/publish")
 @ns_mqtt.expect(mqtt_parser)
 class MqttPublish(Resource):
@@ -154,10 +172,10 @@ class MqttPublish(Resource):
 
 @ns_mqtt.route("/topics")
 class MqttTopics(Resource):
-    @ns_mqtt.marshal_list_with(mqtt_message_model)
     def get(self):
         """List known MQTT topics and their last retained value"""
-        return {"topics": []}, 200
+        with topic_lock:
+            return list(topic_store.values()), 200
 
 
 @ns_events.route("/")
