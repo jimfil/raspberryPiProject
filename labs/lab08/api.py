@@ -1,5 +1,5 @@
 from flask import Flask, request
-from flask_restx import Api, Resource, reqparse
+from flask_restx import Api, Resource, reqparse, fields
 import json
 import paho.mqtt.client as mqtt
 from apiFunc import load_json,load_events
