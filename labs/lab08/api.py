@@ -128,18 +128,42 @@ class BinEmptied(Resource):
         return {"message": f"Bin {bin_id} emptied"}, 200
 
 
+sensors_registry = [
+    {
+        "id": "urn:dev:team05:pir-01",
+        "type": "PIR",
+        "model": "HC-SR501",
+        "mounted_on": "bin-01",
+        "status": "active"
+    }
+]
+
+def find_sensor(sensor_id):
+    for s in sensors_registry:
+        if s["id"] == sensor_id:
+            return s
+    return None
+
+
 @ns_sensors.route("/")
 class SensorList(Resource):
+    @ns_sensors.marshal_list_with(sensor_model)
     def get(self):
         """List all sensors"""
-        return {"sensors": []}, 200
+        return sensors_registry
 
 
 @ns_sensors.route("/<string:sensor_id>")
-class SensorItem(Resource):
+@ns_sensors.param("sensor_id", "The sensor identifier")
+@ns_sensors.response(404, "Sensor not found")
+class Sensor(Resource):
+    @ns_sensors.marshal_with(sensor_model)
     def get(self, sensor_id):
         """Get details for a specific sensor"""
-        return {"sensor_id": sensor_id}, 200
+        sensor = find_sensor(sensor_id)
+        if not sensor:
+            api.abort(404, f"Sensor {sensor_id} not found")
+        return sensor
 
 
 
