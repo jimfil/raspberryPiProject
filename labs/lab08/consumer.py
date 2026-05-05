@@ -84,7 +84,7 @@ def on_message(client, userdata, msg, metrics, topic, out_file, verbose):
 @click.option("--port", type=int, default=1883, help="MQTT Broker port")
 @click.option("--topic", type=str, default="smartbin/bin-01/pir-01/events", help="MQTT topic for events")
 @click.option("--qos", type=int, default=1, help="MQTT QoS (0=At most once, 1=At least once, 2=Exactly once)")
-@click.option("--out", required=True, help="Path to the output JSONL file")
+@click.option("--out", required=True,default="events.log", help="Path to the output JSONL file")
 @click.option("--verbose", is_flag=True, help="Print status messages to the terminal")
 def main(broker: str, port: int, topic: str, qos: int, out: str, verbose: bool):
     # Creating an MQTT client
