@@ -46,6 +46,9 @@ bin_parser.add_argument("bin_id", type=str, required=True, help="Bin unique iden
 bin_parser.add_argument("limit", type=int, default=50, help="Max bins to return")
 bin_parser.add_argument("offset", type=int, default=0, help="Offset")
 
+mqtt_parser = reqparse.RequestParser()
+mqtt_parser.add_argument("topic", type=str, required=True, help="MQTT topic to publish to")
+mqtt_parser.add_argument("message", type=str, required=True, help="Message payload")
 
 @ns_bins.route("/")
 @ns_bins.expect(bin_parser)
@@ -57,7 +60,9 @@ class BinList(Resource):
 
 
 @ns_bins.route("/<string:bin_id>")
+@ns_bins.expect(bin_parser)
 class BinItem(Resource):
+    @ns_bins.marshal_with(bin_model)
     def get(self, bin_id):
         """Get details for a specific bin"""
         return {"bin_id": bin_id}, 200
@@ -71,8 +76,8 @@ class BinSensors(Resource):
 
 
 @ns_bins.route("/<string:bin_id>/events")
+@ns_bins.expect(events_parser)
 class BinEvents(Resource):
-    @ns_bins.expect(events_parser)
     @ns_bins.marshal_list_with(event_model)
     def get(self, bin_id):
         """Get motion events for a specific bin"""
@@ -87,6 +92,7 @@ class BinEvents(Resource):
 
 @ns_bins.route("/<string:bin_id>/emptied")
 class BinEmptied(Resource):
+    @ns_bins.marshal_with(bin_model)
     def post(self, bin_id):
         """Record that a bin was emptied"""
         return {"message": f"Bin {bin_id} emptied"}, 200
@@ -107,6 +113,7 @@ class SensorItem(Resource):
 
 
 @ns_mqtt.route("/publish")
+@ns_mqtt.expect(mqtt_parser)
 class MqttPublish(Resource):
     def post(self):
         """Publish a message to an MQTT topic"""
@@ -130,6 +137,7 @@ class MqttPublish(Resource):
 
 @ns_mqtt.route("/topics")
 class MqttTopics(Resource):
+    @ns_mqtt.marshal_list_with(mqtt_message_model)
     def get(self):
         """List known MQTT topics and their last retained value"""
         return {"topics": []}, 200
