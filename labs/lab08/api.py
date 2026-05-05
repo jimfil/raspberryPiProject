@@ -43,7 +43,7 @@ api = Api(
 
 ns_bins = api.namespace("bins", description="Wastebin operations")
 ns_sensors = api.namespace("sensors", description="Sensor operations")
-ns_mqtt = api.namespace("mqtt", description="MQTT operations")
+ns_mqtt = api.namespace("mqtt", description="MQTT broker interaction")
 ns_events = api.namespace("events", description="Motion events from pipeline")
 
 bin_model = api.model("Bin", {
@@ -70,6 +70,13 @@ sensor_model = api.model("Sensor", {
     "payload" : fields.String(required=True, description="Message payload"),
     "qos" : fields.Integer(required=True, description="Quality of Service"),
     "retain" : fields.Boolean(required=True, description="Retain this message on the broker", default=False),
+})
+
+publish_model = api.model("MQTTPublish", {
+    "topic": fields.String(required=True, description="MQTT topic to publish to"),
+    "payload": fields.String(required=True, description="Message payload"),
+    "qos": fields.Integer(description="Quality of Service (0, 1, or 2)", default=1),
+    "retain": fields.Boolean(description="Retain this message on the broker", default=False),
 })
 
 events_parser = reqparse.RequestParser()
@@ -156,20 +163,36 @@ class SensorItem(Resource):
 
 
 @ns_mqtt.route("/publish")
-@ns_mqtt.expect(mqtt_parser)
 class MqttPublish(Resource):
+    @ns_mqtt.expect(publish_model)
+    @ns_mqtt.response(200, "Message published")
+    @ns_mqtt.response(400, "Invalid request")
     def post(self):
         """Publish a message to an MQTT topic"""
         try:
-            args = mqtt_parser.parse_args()
-            topic = args.get("topic")
-            message = args.get("message")
+            data = request.get_json() or {}
+            
+            topic = data.get("topic")
+            payload = data.get("payload")
+            qos = data.get("qos", 1)
+            retain = data.get("retain", False)
 
-            if not topic or message is None:
-                return {"error": "Missing topic or message in payload"}, 400
+            if not topic or payload is None:
+                return {"message": "Both 'topic' and 'payload' are required"}, 400
 
-            mqtt_client.publish(topic, message)
-            return {"message": "Message published"}, 200
+            if qos not in (0, 1, 2):
+                return {"message": "QoS must be 0, 1, or 2"}, 400
+
+            result = mqtt_client.publish(topic, payload, qos=qos, retain=retain)
+            
+            return {
+                "status": "published",
+                "topic": topic,
+                "payload": payload,
+                "qos": qos,
+                "retain": retain,
+                "mqtt_rc": result.rc
+            }, 200
         except Exception as e:
             return {"message": str(e)}, 500
         
