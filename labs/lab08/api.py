@@ -17,34 +17,40 @@ ns_sensors = api.namespace("sensors", description="Sensor operations")
 ns_mqtt = api.namespace("mqtt", description="MQTT operations")
 ns_events = api.namespace("events", description="Motion events from pipeline")
 
-event_model = api.model('Event', {
-    '@context': fields.Raw(description='JSON-LD Context'),
-    '@type': fields.String(description='Entity Type'),
-    'device_id': fields.String(description='Device ID'),
-    'sensor_ref': fields.String(description='Sensor Reference'),
-    'wastebin_ref': fields.String(description='Wastebin Reference'),
-    'environment_ref': fields.String(description='Environment Reference'),
-    'event_time': fields.String(description='Event Time'),
-    'event_type': fields.String(description='Event Type'),
-    'motion_state': fields.String(description='Motion State'),
-    'seq': fields.Integer(description='Sequence Number'),
-    'run_id': fields.String(description='Run ID'),
-    'ingest_time': fields.String(description='Ingest Time'),
-    'pipeline_latency_ms': fields.Float(description='Pipeline Latency (ms)')
+bin_model = api.model("Bin", {
+    "id": fields.String(required=True, description="Bin unique identifier"),
+    "name": fields.String(description="Human-readable name"),
+    "location": fields.String(description="Deployment location"),
+    "status": fields.String(description="Current status"),
 })
 
-events_parser = api.parser()
-events_parser.add_argument('limit', type=int, help='Maximum number of events to return', location='args')
+event_model = api.model("Event", {
+    "resultTime": fields.String(description="ISO timestamp of the event"),
+    "madeBySensor": fields.String(description="Sensor ID that produced this event"),
+    "hasSimpleResult": fields.String(description="Motion state (detected/clear)"),
+    "pipeline_latency_ms": fields.Float(description="Pipeline latency in ms"),
+})
 
-def get_sensor_for_bin(bin_id):
-    mapping = {
-        "bin-01": "urn:dev:team05:pir-01"
-    }
-    return mapping.get(bin_id)
+mqtt_message_model = api.model("MqttMessage", {
+    "topic": fields.String(required=True, description="MQTT topic to publish to"),
+    "message": fields.String(required=True, description="Message payload"),
+})
+
+events_parser = reqparse.RequestParser()
+events_parser.add_argument("limit", type=int, default=50, help="Max events to return")
+events_parser.add_argument("start", type=str, help="Start datetime (ISO format)")
+events_parser.add_argument("end", type=str, help="End datetime (ISO format)")
+
+bin_parser = reqparse.RequestParser()
+bin_parser.add_argument("bin_id", type=str, required=True, help="Bin unique identifier")
+bin_parser.add_argument("limit", type=int, default=50, help="Max bins to return")
+bin_parser.add_argument("offset", type=int, default=0, help="Offset")
 
 
 @ns_bins.route("/")
+@ns_bins.expect(bin_parser)
 class BinList(Resource):
+    @ns_bins.marshal_with(bin_model, as_list=True)
     def get(self):
         """List all bins"""
         return {"bins": []}, 200
