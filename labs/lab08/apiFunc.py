@@ -3,7 +3,7 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "data")
-EVENTS_FILE = os.path.join(DATA_DIR, "motion_events.jsonl")
+EVENTS_FILE = os.path.join(DATA_DIR, "events.log")
 
 def load_json(filepath):
     """Loads and parses a standard JSON file."""
