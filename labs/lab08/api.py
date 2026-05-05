@@ -19,9 +19,17 @@ def on_message(client, userdata, msg):
             "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
         }
 
-mqtt_client = mqtt.Client(client_id="wastebin-api", clean_session=False)
+try:
+    mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id="wastebin-api", clean_session=False)
+except AttributeError:
+    mqtt_client = mqtt.Client(client_id="wastebin-api", clean_session=False)
+
 mqtt_client.on_message = on_message
-mqtt_client.connect("localhost", 1883, keepalive=60)
+try:
+    mqtt_client.connect_async("localhost", 1883, keepalive=60)
+except Exception as e:
+    print(f"Warning: MQTT connection failed: {e}")
+    
 mqtt_client.subscribe("smartbin/#", qos=1)
 mqtt_client.loop_start()
 
