@@ -1,7 +1,6 @@
 from flask import Flask, request
 from flask_restx import Api, Resource
 import json
-import os
 import paho.mqtt.client as mqtt
 
 app = Flask(__name__)
@@ -17,7 +16,6 @@ ns_sensors = api.namespace("sensors", description="Sensor operations")
 ns_mqtt = api.namespace("mqtt", description="MQTT operations")
 ns_events = api.namespace("events", description="Motion events from pipeline")
 
-EVENTS_JSONL_PATH = os.environ.get("EVENTS_JSONL_PATH", "events.jsonl")
 
 
 @ns_bins.route("/")
@@ -103,15 +101,14 @@ class EventList(Resource):
     def get(self):
         """List all motion events produced by the pipeline"""
         events = []
-        if os.path.exists(EVENTS_JSONL_PATH):
-            try:
-                with open(EVENTS_JSONL_PATH, "r") as f:
-                    for line in f:
-                        line = line.strip()
-                        if line:
-                            events.append(json.loads(line))
-            except Exception as e:
-                return {"error": str(e)}, 500
+        try:
+            with open("events.log", "r") as f:
+                for line in f:
+                    line = line.strip()
+                    if line:
+                        events.append(json.loads(line))
+        except Exception as e:
+            return {"error": str(e)}, 500
         
         return {"events": events}, 200
 
