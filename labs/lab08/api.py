@@ -111,6 +111,20 @@ def find_sensor(sensor_id):
             return s
     return None
 
+bins_registry = [
+    {
+        "id": "bin-01",
+        "name": "Main Entrance Bin",
+        "location": "Lobby",
+        "status": "active"
+    }
+]
+
+def find_bin(bin_id):
+    for b in bins_registry:
+        if b["id"] == bin_id:
+            return b
+    return None
 
 
 @ns_bins.route("/")
@@ -128,7 +142,10 @@ class BinItem(Resource):
     @ns_bins.marshal_with(bin_model)
     def get(self, bin_id):
         """Get details for a specific bin"""
-        return {"bin_id": bin_id}, 200
+        bin_data = find_bin(bin_id)
+        if not bin_data:
+            ns_bins.abort(404, f"Bin {bin_id} not found")
+        return bin_data
 
 
 @ns_bins.route("/<string:bin_id>/sensors")
