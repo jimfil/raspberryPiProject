@@ -60,6 +60,12 @@ event_model = api.model("Event", {
     "pipeline_latency_ms": fields.Float(description="Pipeline latency in ms"),
 })
 
+emptied_model = api.model("EmptiedRecord", {
+    "bin_id": fields.String(description="Bin identifier"),
+    "emptied_at": fields.String(description="ISO timestamp of when the bin was emptied"),
+    "emptied_by": fields.String(description="Who emptied the bin"),
+})
+
 mqtt_message_model = api.model("MqttMessage", {
     "topic": fields.String(required=True, description="MQTT topic to publish to"),
     "message": fields.String(required=True, description="Message payload"),
@@ -171,11 +177,29 @@ class BinEvents(Resource):
 
 
 @ns_bins.route("/<string:bin_id>/emptied")
+@ns_bins.param("bin_id", "The bin identifier")
 class BinEmptied(Resource):
-    @ns_bins.marshal_with(bin_model)
+    @ns_bins.expect(emptied_model)
+    @ns_bins.response(201, "Bin marked as emptied")
+    @ns_bins.response(404, "Bin not found")
+    @ns_bins.marshal_with(emptied_model, code=201)
     def post(self, bin_id):
         """Record that a bin was emptied"""
-        return {"message": f"Bin {bin_id} emptied"}, 200
+        bin_data = find_bin(bin_id)
+        if not bin_data:
+            ns_bins.abort(404, f"Bin {bin_id} not found")
+            
+        data = request.json or {}
+        
+        record = {
+            "bin_id": bin_id,
+            "emptied_at": data.get("emptied_at") or datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+            "emptied_by": data.get("emptied_by", "unknown")
+        }
+        
+        # Save record (mock implementation)
+        
+        return record, 201
 
 
 
