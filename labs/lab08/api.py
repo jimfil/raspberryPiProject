@@ -35,6 +35,7 @@ def on_connect(client, userdata, flags, rc, *args):
         print(f"Failed to connect, return code {rc}")
 
 mqtt_client.on_connect = on_connect
+mqtt_client.on_message = on_message
 
 try:
     mqtt_client.connect_async("localhost", 1883, keepalive=60)
