@@ -272,10 +272,13 @@ class MQTTTopics(Resource):
     def get(self):
         """List all known MQTT topics and their last received message"""
         with topic_lock:
+            print("in topic")
             return {
                 "topic_count": len(topic_store),
                 "topics": list(topic_store.values())
             }, 200
+        print("out topic")
+
 
 @ns_mqtt.route("/topics/<path:topic>")
 @ns_mqtt.param("topic", "MQTT topic path, for example smartbin/bin-01/pir-01/motion")
@@ -325,16 +328,6 @@ class MqttPublish(Resource):
         
 
 
-
-
-
-@ns_mqtt.route("/topics")
-class MqttTopics(Resource):
-    @ns_mqtt.marshal_list_with(sensor_model)
-    def get(self):
-        """List known MQTT topics and their last retained value"""
-        with topic_lock:
-            return list(topic_store.values()), 200
 
 
 @ns_events.route("/")
