@@ -160,7 +160,7 @@ class BinList(Resource):
     @ns_bins.marshal_with(allbins_model)
     def get(self):
         """List all bins"""
-        args = events_parser.parse_args()
+        args = allbins_parser.parse_args()
         limit=args.get("limit")
         offset=args.get("offset")
         bin_list = bins_registry

@@ -49,6 +49,7 @@ def on_message(client, userdata, msg, metrics, topic, out_file, verbose):
     # - msg.payload: the content of the message (bytes)
     payload = msg.payload.decode('utf-8')
     print(msg.topic)
+    out_file = 'data/'+ out_file
     # Check if this is a status message (retained)
     if msg.topic == STATUS_TOPIC:
         print(f"[Status] Producer status: {payload}")
