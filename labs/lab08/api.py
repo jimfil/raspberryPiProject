@@ -54,6 +54,10 @@ bin_model = api.model("Bin", {
     "status": fields.String(description="Current status"),
 })
 
+allbins_model = api.model("bins", {
+    "bins": fields.List(fields.Nested(bin_model))
+})
+
 event_model = api.model("Event", {
     "resultTime": fields.String(description="ISO timestamp of the event"),
     "madeBySensor": fields.String(description="Sensor ID that produced this event"),
@@ -143,10 +147,18 @@ def find_bin(bin_id):
 @ns_bins.route("/")
 @ns_bins.expect(allbins_parser)
 class BinList(Resource):
-    @ns_bins.marshal_with(bin_model, as_list=True)
+    @ns_bins.marshal_with(allbins_model)
     def get(self):
         """List all bins"""
-        return {"bins": []}, 200
+        args = events_parser.parse_args()
+        limit=args.get("limit")
+        offset=args.get("offset")
+        bin_list = bins_registry
+        if offset != None:
+            bin_list = bin_list[offset:offset+limit]
+        else:
+            bin_list = bin_list[:limit]
+        return {"bins": bin_list}, 200
 
 
 @ns_bins.route("/<string:bin_id>")
