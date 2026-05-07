@@ -6,6 +6,12 @@ import paho.mqtt.client as mqtt
 import threading
 from datetime import datetime, timezone
 
+
+try:
+    mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id="wastebin-api", clean_session=False)
+except AttributeError:
+    mqtt_client = mqtt.Client(client_id="wastebin-api", clean_session=False)
+
 topic_store = {}
 topic_lock = threading.Lock()
 
@@ -18,11 +24,6 @@ def on_message(client, userdata, msg):
             "retain": msg.retain,
             "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
         }
-
-try:
-    mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id="wastebin-api", clean_session=False)
-except AttributeError:
-    mqtt_client = mqtt.Client(client_id="wastebin-api", clean_session=False)
 
 mqtt_client.on_message = on_message
 try:
