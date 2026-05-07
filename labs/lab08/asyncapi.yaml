@@ -47,6 +47,30 @@ channels:
       binStatus:
         $ref: '#/components/messages/BinStatus'
 
+  sensorStatus:
+    address: smartbin/{bin_id}/{sensor_id}/status
+    description: Simple availability state for the sensor (LWT online/offline)
+    parameters:
+      bin_id:
+        description: Wastebin identifier
+      sensor_id:
+        description: Sensor identifier
+    messages:
+      sensorStatus:
+        $ref: '#/components/messages/SensorStatus'
+
+  eventCount:
+    address: smartbin/{bin_id}/{sensor_id}/event_count
+    description: Running numeric counter of total motion events detected
+    parameters:
+      bin_id:
+        description: Wastebin identifier
+      sensor_id:
+        description: Sensor identifier
+    messages:
+      eventCount:
+        $ref: '#/components/messages/EventCount'
+
 operations:
   publishMotionEvent:
     action: send
@@ -79,6 +103,12 @@ operations:
     channel:
       $ref: '#/channels/binStatus'
     summary: Status update published as a retained message
+
+  publishEventCount:
+    action: send
+    channel:
+      $ref: '#/channels/eventCount'
+    summary: Producer publishes running event counter
 
 components:
   messages:
@@ -143,3 +173,10 @@ components:
             type: string
             format: date-time
             description: Timestamp of most recent motion event
+
+    EventCount:
+      name: EventCount
+      contentType: text/plain
+      payload:
+        type: string
+        description: String representation of an integer counting total events
