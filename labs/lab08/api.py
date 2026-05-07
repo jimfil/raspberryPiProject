@@ -117,6 +117,12 @@ def find_sensor(sensor_id):
             return s
     return None
 
+def get_sensor_for_bin(bin_id):
+    for s in sensors_registry:
+        if s.get("mounted_on") == bin_id:
+            return s["id"]
+    return None
+
 bins_registry = [
     {
         "id": "bin-01",
@@ -189,7 +195,7 @@ class BinEmptied(Resource):
         if not bin_data:
             ns_bins.abort(404, f"Bin {bin_id} not found")
             
-        data = request.json or {}
+        data = request.get_json(silent=True) or {}
         
         record = {
             "bin_id": bin_id,
