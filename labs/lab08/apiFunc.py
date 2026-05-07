@@ -27,12 +27,19 @@ def load_events(filepath=EVENTS_FILE, limit=None, sensor_id=None):
             try:
                 record = json.loads(line)
 
-                record_sensor = record.get("device_id")
-
-                if sensor_id is not None and record_sensor != sensor_id:
+                # Filter by sensor_id if provided
+                if sensor_id is not None and record.get("device_id") != sensor_id:
                     continue
 
-                events.append(record)
+                # Map internal data to the format expected by the API models
+                mapped_event = {
+                    "resultTime": record.get("event_time"),
+                    "madeBySensor": record.get("device_id"),
+                    "hasSimpleResult": record.get("motion_state"),
+                    "pipeline_latency_ms": record.get("pipeline_latency_ms")
+                }
+
+                events.append(mapped_event)
 
             except json.JSONDecodeError:
                 continue
