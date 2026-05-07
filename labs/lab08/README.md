@@ -27,7 +27,36 @@ pip install -r requirements.txt
 ```
 
 ### Prerequisites: MQTT Broker
-You need a running MQTT broker (e.g., Mosquitto) before starting the producer and consumer:
+You need a running MQTT broker (e.g., Mosquitto). On a Raspberry Pi, it usually runs as a service. You can check its status:
+```bash
+sudo systemctl status mosquitto
+```
+
+### Running the System
+
+To run the complete pipeline, open three separate terminals in the `labs/lab08` directory:
+
+1. **Terminal 1: Start the API**
+   ```bash
+   python api.py
+   ```
+   *Note: The API dynamically loads bins and sensors from the `models/` directory.*
+
+2. **Terminal 2: Start the Consumer**
+   ```bash
+   python consumer.py --sensor_id urn:dev:team05:pir-01
+   ```
+   *The consumer will listen for events and save them to `data/pir-01_events.log`.*
+
+3. **Terminal 3: Start the Producer**
+   ```bash
+   python producer.py --bin_id bin-01 --sensor_id pir-01
+   ```
+   *The producer will read the physical PIR sensor and publish events to MQTT.*
+
+### Accessing the Documentation
+Once the API is running, you can view the interactive Swagger UI at:
+`http://<your-pi-ip>:5000/`
 
 
 ---
@@ -76,8 +105,8 @@ Ans: We handled the request by checking if the returned object from the helper f
 Ans:
 1. The physical "PIR sensor" detects motion.
 2. The "producer" reads the GPIO pin and publishes a JSON-LD event to the MQTT broker.
-3. The "consumer" subscribes to the broker, receives the event, and appends it to the local 'motion_events.jsonl' file.
-4. When a client requests events, the "API" parses the 'motion_events.jsonl' file via the 'load_events' function and returns the data as an HTTP JSON response.
+3. The "consumer" subscribes to the broker, receives the event, and appends it to the sensor-specific log file (e.g., `pir-01_events.log`).
+4. When a client requests events, the "API" parses the sensor-specific log file (e.g., `pir-01_events.log`) via the `load_events` function and returns the data as an HTTP JSON response.
 
 
 
@@ -90,10 +119,10 @@ Example Response:
 ```json
 [
   {
-    "resultTime": "2026-05-05T10:00:00Z",
+    "resultTime": "2026-05-07T14:18:42.218Z",
     "madeBySensor": "urn:dev:team05:pir-01",
     "hasSimpleResult": "detected",
-    "pipeline_latency_ms": 15.2
+    "pipeline_latency_ms": 1.0
   }
 ]
 ```
@@ -142,7 +171,7 @@ Ans:
 2. The Flask API receives the request and calls `mqtt_client.publish()`.
 3. The Paho MQTT client inside the API sends the message to the **Mosquitto Broker**.
 4. The **consumer script**, which is subscribed to the topic, receives the message from the broker.
-5. The consumer enriches the data and appends it to the `motion_events.jsonl` file.
+5. The consumer enriches the data and appends it to the sensor-specific log file (e.g., `pir-01_events.log`).
 
 
 
@@ -167,10 +196,11 @@ Ans: AsyncAPI is a specification for documenting event-driven architectures (lik
 
 **RQ14: How many channels did you document in your AsyncAPI spec? For each, state who is the publisher and who is the subscriber.**
 
-Ans: We documented 3 channels:
+Ans: We documented 4 channels:
 1. `smartbin/{bin_id}/{sensor_id}/events` - Publisher: Producer (PIR script), Subscriber: Consumer (JSONL writer).
 2. `smartbin/{bin_id}/{sensor_id}/motion` - Publisher: Producer, Subscriber: Home Assistant.
-3. `smartbin/{bin_id}/status` - Publisher: REST API (`/emptied` endpoint), Subscriber: Home Assistant.
+3. `smartbin/{bin_id}/status` - Publisher: Producer & REST API (`/emptied` endpoint), Subscriber: Home Assistant.
+4. `smartbin/{bin_id}/{sensor_id}/event_count` - Publisher: Producer, Subscriber: Home Assistant.
 
 
 
@@ -197,22 +227,29 @@ curl http://192.168.137.244:5000/bins/
 {
     "bins": [
         {
-            "id": "bin-01",
-            "name": "Main Entrance Bin",
-            "location": "Lobby",
+            "id": "urn:wastebin:bin-01",
+            "name": "Smart Wastebin Unit 01",
+            "location": "Ground Level of ECE Building",
             "status": "active"
         }
     ]
 }
 ```
 
-**(b) Getting events with a limit:**
+** (b) Getting events with a limit:**
 ```bash
-curl "http://192.168.137.244:5000/bins/bin-01/events?limit=2-"
+curl "http://192.168.137.244:5000/bins/bin-01/events?limit=2"
 # Response:
-[{"resultTime": "...", "madeBySensor": "urn:dev:team05:pir-01", "hasSimpleResult": "detected", "pipeline_latency_ms": 1.5}, 
- {"resultTime": "...", "madeBySensor": "urn:dev:team05:pir-01", "hasSimpleResult": "not_detected", "pipeline_latency_ms": 2.5}]
+[
+    {
+        "resultTime": "2026-05-07T14:18:42.218Z",
+        "madeBySensor": "urn:dev:team05:pir-01",
+        "hasSimpleResult": "detected",
+        "pipeline_latency_ms": 1.0
+    }
+]
 ```
+
 
 **(c) Publishing an MQTT message:**
 ```bash
@@ -226,7 +263,7 @@ curl -X POST http://192.168.137.244:5000/mqtt/publish \
     "payload": "detected",
     "qos": 1,
     "retain": false,
-    "mqtt_rc": 0
+    "mqtt_rc": 4
 }
 ```
 
@@ -235,11 +272,7 @@ curl -X POST http://192.168.137.244:5000/mqtt/publish \
 curl -i http://192.168.137.244:5000/bins/bin-99
 # Response:
 HTTP/1.1 404 NOT FOUND
-Server: Werkzeug/3.1.3 Python/3.13.5
-Date: Thu, 07 May 2026 11:48:06 GMT
 Content-Type: application/json
-Content-Length: 127
-Connection: close
 
 {
     "message": "Bin bin-99 not found. You have requested this URI [/bins/bin-99] but did you mean /bins/<string:bin_id> ?"

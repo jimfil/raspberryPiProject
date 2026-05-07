@@ -175,6 +175,8 @@ class BinEvents(Resource):
             EVENTS_FILE,
             limit=args.get("limit"),
             sensor_id=get_sensor_for_bin(bin_id),
+            start_time=args.get("start"),
+            end_time=args.get("end")
         )
         return events
 
@@ -323,7 +325,9 @@ class EventList(Resource):
         args = events_parser.parse_args()
         events = load_events(
             EVENTS_FILE,
-            limit=args.get("limit")
+            limit=args.get("limit"),
+            start_time=args.get("start"),
+            end_time=args.get("end")
         )
         return events
 

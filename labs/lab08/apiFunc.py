@@ -10,8 +10,8 @@ def load_json(filepath):
     with open(filepath, "r", encoding="utf-8") as f:
         return json.load(f)
 
-def load_events(filepath=EVENTS_FILE, limit=None, sensor_id=None):
-    """Loads, filters, and sorts events from a JSONL file."""
+def load_events(filepath=EVENTS_FILE, limit=None, sensor_id=None, start_time=None, end_time=None):
+    """Loads, filters, and sorts events from a JSONL file. Supports date range filtering."""
     events = []
 
     if not os.path.exists(filepath):
@@ -29,6 +29,16 @@ def load_events(filepath=EVENTS_FILE, limit=None, sensor_id=None):
 
                 # Filter by sensor_id if provided
                 if sensor_id is not None and record.get("device_id") != sensor_id:
+                    continue
+
+                event_time = record.get("event_time")
+                
+                # Filter by start_time if provided
+                if start_time and event_time < start_time:
+                    continue
+                
+                # Filter by end_time if provided
+                if end_time and event_time > end_time:
                     continue
 
                 # Map internal data to the format expected by the API models
