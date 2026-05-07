@@ -47,18 +47,6 @@ channels:
       binStatus:
         $ref: '#/components/messages/BinStatus'
 
-  sensorStatus:
-    address: smartbin/{bin_id}/{sensor_id}/status
-    description: Simple availability state for the sensor (LWT online/offline)
-    parameters:
-      bin_id:
-        description: Wastebin identifier
-      sensor_id:
-        description: Sensor identifier
-    messages:
-      sensorStatus:
-        $ref: '#/components/messages/SensorStatus'
-
   eventCount:
     address: smartbin/{bin_id}/{sensor_id}/event_count
     description: Running numeric counter of total motion events detected
