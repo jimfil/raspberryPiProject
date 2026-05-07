@@ -1,6 +1,6 @@
 from flask import Flask, request
 from flask_restx import Api, Resource, fields, reqparse
-from apiFunc import load_events, EVENTS_FILE
+from apiFunc import load_events, EVENTS_FILE, find_sensor, get_sensor_for_bin, find_bin, load_bins, load_sensors, get_sensors_for_bin
 import json
 import paho.mqtt.client as mqtt
 import threading
@@ -87,10 +87,16 @@ mqtt_message_model = api.model("MqttMessage", {
 })
 
 sensor_model = api.model("Sensor", {
-    "topic": fields.String(required=True, description="MQTT topic to publish to"),
-    "payload" : fields.String(required=True, description="Message payload"),
-    "qos" : fields.Integer(required=True, description="Quality of Service"),
-    "retain" : fields.Boolean(required=True, description="Retain this message on the broker", default=False),
+    "id": fields.String(required=True, description="Sensor unique identifier (URN)"),
+    "type": fields.String(description="Sensor type (e.g. PIR)"),
+    "model": fields.String(description="Hardware model"),
+    "mounted_on": fields.String(description="ID of the bin this sensor is mounted on"),
+    "status": fields.String(description="Current status"),
+})
+
+bin_sensors_response = api.model("BinSensorsResponse", {
+    "bin_id": fields.String(description="Bin identifier"),
+    "sensors": fields.List(fields.Nested(sensor_model))
 })
 
 publish_model = api.model("MQTTPublish", {
@@ -116,42 +122,7 @@ mqtt_parser = reqparse.RequestParser()
 mqtt_parser.add_argument("topic", type=str, required=True, help="MQTT topic to publish to")
 mqtt_parser.add_argument("message", type=str, required=True, help="Message payload")
 
-sensors_registry = [
-    {
-        "id": "urn:dev:team05:pir-01",
-        "type": "PIR",
-        "model": "HC-SR501",
-        "mounted_on": "bin-01",
-        "status": "active"
-    }
-]
 
-def find_sensor(sensor_id):
-    for s in sensors_registry:
-        if s["id"] == sensor_id:
-            return s
-    return None
-
-def get_sensor_for_bin(bin_id):
-    for s in sensors_registry:
-        if s.get("mounted_on") == bin_id:
-            return s["id"]
-    return None
-
-bins_registry = [
-    {
-        "id": "bin-01",
-        "name": "Main Entrance Bin",
-        "location": "Lobby",
-        "status": "active"
-    }
-]
-
-def find_bin(bin_id):
-    for b in bins_registry:
-        if b["id"] == bin_id:
-            return b
-    return None
 
 
 @ns_bins.route("/")
@@ -163,7 +134,7 @@ class BinList(Resource):
         args = allbins_parser.parse_args()
         limit=args.get("limit")
         offset=args.get("offset")
-        bin_list = bins_registry
+        bin_list = load_bins()
         if offset != None:
             bin_list = bin_list[offset:offset+limit]
         else:
@@ -184,10 +155,13 @@ class BinItem(Resource):
 
 
 @ns_bins.route("/<string:bin_id>/sensors")
+@ns_bins.param("bin_id", "The bin identifier")
 class BinSensors(Resource):
+    @ns_bins.marshal_with(bin_sensors_response)
     def get(self, bin_id):
         """List sensors on a specific bin"""
-        return {"bin_id": bin_id, "sensors": []}, 200
+        sensors = get_sensors_for_bin(bin_id)
+        return {"bin_id": bin_id, "sensors": sensors}, 200
 
 
 @ns_bins.route("/<string:bin_id>/events")
@@ -256,7 +230,7 @@ class SensorList(Resource):
     @ns_sensors.marshal_list_with(sensor_model)
     def get(self):
         """List all sensors"""
-        return sensors_registry
+        return load_sensors()
 
 
 @ns_sensors.route("/<string:sensor_id>")

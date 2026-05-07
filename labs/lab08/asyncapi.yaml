@@ -78,7 +78,7 @@ operations:
     description: |
       The consumer subscribes to this channel, enriches each event with
       ingest_time and pipeline_latency_ms, and writes the result to a
-      JSONL file.      
+      sensor-specific JSONL file.      
 
   publishMotionState:
     action: send
@@ -113,21 +113,33 @@ components:
             type: string
             description: Observation type
             example: sosa:Observation
-          madeBySensor:
+          device_id:
+            type: string
+            description: Identifier of the device (full URN)
+            example: "urn:dev:team05:pir-01"
+          sensor_ref:
             type: string
             description: URI of the sensor that produced this event
-            example: "urn:dev:pir-01"
-          observedIn:
+            example: "urn:dev:team05:pir-01"
+          wastebin_ref:
+            type: string
+            description: URI of the wastebin this sensor is mounted on
+            example: "urn:wastebin:bin-01"
+          environment_ref:
             type: string
             description: URI of the deployment environment
-            example: "urn:env:lab-room-101"
-          resultTime:
+            example: "urn:env:kypes-02"
+          event_time:
             type: string
             format: date-time
             description: ISO 8601 timestamp of when the event occurred
-          hasSimpleResult:
+          event_type:
             type: string
-            description: Motion state
+            description: Type of event detected
+            example: motion
+          motion_state:
+            type: string
+            description: Motion state detected
             enum: [detected, clear]
           seq:
             type: integer
@@ -161,6 +173,9 @@ components:
             type: string
             format: date-time
             description: Timestamp of most recent motion event
+          total_events_today:
+            type: integer
+            description: Total number of motion events recorded today
 
     EventCount:
       name: EventCount

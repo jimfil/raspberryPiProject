@@ -13,6 +13,7 @@ from typing import Dict, Any
 
 from pirlib.sampler import PirSampler
 from pirlib.interpreter import PirInterpreter
+from apiFunc import find_sensor, find_bin
 
 
 def utc_now_iso() -> str:
@@ -26,20 +27,19 @@ def utc_now_iso() -> str:
 def parse_iso_utc(s: str) -> datetime:
     return datetime.fromisoformat(s.replace("Z", "+00:00"))
 
+# Default values
+DEFAULT_SENSOR_ID = "urn:dev:team05:pir-01"
 BROKER_ADDRESS = "localhost"
 BROKER_PORT = 1883
-STATUS_TOPIC = "smartbin/bin-01/pir-01/status"
 
 
-def on_connect(client, userdata, flags, rc, topic):
-    # Callback that executes when the client connects to the broker.
+def on_connect(client, userdata, flags, rc, topics):
     # rc == 0 means successful connection
     if rc == 0:
         print("Successfully connected to the broker!")
-        client.subscribe(topic)
-        print(f"Subscribed to topic: {topic}")
-        client.subscribe(STATUS_TOPIC)
-        print(f"Subscribed to topic: {STATUS_TOPIC}")
+        for topic in topics:
+            client.subscribe(topic)
+            print(f"Subscribed to topic: {topic}")
     else:
         print(f"Connection failed. Code: {rc}")
 
@@ -48,10 +48,10 @@ def on_message(client, userdata, msg, metrics, topic, out_file, verbose):
     # - msg.topic: the topic from which the message came
     # - msg.payload: the content of the message (bytes)
     payload = msg.payload.decode('utf-8')
-    print(msg.topic)
-    out_file = 'data/'+ out_file
-    # Check if this is a status message (retained)
-    if msg.topic == STATUS_TOPIC:
+    print(f"Message received on: {msg.topic}")
+    
+    # Check if this is a status message
+    if msg.topic.endswith("/status"):
         print(f"[Status] Producer status: {payload}")
         metrics["status_updates"] += 1
         return
@@ -81,13 +81,28 @@ def on_message(client, userdata, msg, metrics, topic, out_file, verbose):
     print(f"Statistics: {metrics['consumed']} messages consumed, {metrics['dropped']} messages dropped, {metrics['status_updates']} status updates.")
 
 @click.command()
+@click.option("--sensor-id", default=DEFAULT_SENSOR_ID, help="URN of the sensor to monitor")
 @click.option("--broker", default="localhost", help="MQTT Broker address")
 @click.option("--port", type=int, default=1883, help="MQTT Broker port")
-@click.option("--topic", type=str, default="smartbin/bin-01/pir-01/events", help="MQTT topic for events")
 @click.option("--qos", type=int, default=1, help="MQTT QoS (0=At most once, 1=At least once, 2=Exactly once)")
-@click.option("--out", required=True,default="events.log", help="Path to the output JSONL file")
 @click.option("--verbose", is_flag=True, help="Print status messages to the terminal")
-def main(broker: str, port: int, topic: str, qos: int, out: str, verbose: bool):
+def main(sensor_id: str, broker: str, port: int, qos: int, verbose: bool):
+    # Load dynamic configuration
+    sensor_data = find_sensor(sensor_id)
+    if not sensor_data:
+        print(f"Error: Sensor {sensor_id} not found in models.")
+        return
+    
+    bin_urn = sensor_data.get("mounted_on")
+    sensor_short_id = sensor_id.split(":")[-1]
+    bin_short_id = bin_urn.split(":")[-1] if bin_urn else "unknown-bin"
+    
+    events_topic = f"smartbin/{bin_short_id}/{sensor_short_id}/events"
+    status_topic = f"smartbin/{bin_short_id}/status"
+    
+    out_file = f"data/{sensor_short_id}_events.log"
+    os.makedirs("data", exist_ok=True)
+
     # Creating an MQTT client
     client = mqtt.Client()
     # Connecting the callback functions so the client knows
@@ -97,8 +112,8 @@ def main(broker: str, port: int, topic: str, qos: int, out: str, verbose: bool):
         "dropped": 0,
         "status_updates": 0,
     }
-    client.on_connect = lambda client, userdata, flags, rc: on_connect(client, userdata, flags, rc, topic)
-    client.on_message = lambda client, userdata, msg: on_message(client, userdata, msg, metrics, topic, out+".log", verbose)
+    client.on_connect = lambda client, userdata, flags, rc: on_connect(client, userdata, flags, rc, [events_topic, status_topic])
+    client.on_message = lambda client, userdata, msg: on_message(client, userdata, msg, metrics, events_topic, out_file, verbose)
 
     # Connecting to the MQTT broker.
     # keepalive=60 means the client will notify the broker that it is active every 60 seconds.
