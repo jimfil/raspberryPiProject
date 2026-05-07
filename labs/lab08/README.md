@@ -52,31 +52,40 @@ Ans:
 | POST | `/mqtt/publish` | JSON body: `topic`, `payload`, `qos`, `retain` | Status of the publication request |
 
 
-**RQ2: Why do the event-listing endpoints use GET and not POST? RQ3: Why does the “mark as emptied” endpoint use POST and not PUT? Think about idempotency.**
 
-Ans:
-- The event-listing endpoints use `GET` because they only retrieve data and do not modify the server's state. `GET` is meant to be a safe, read-only operation.
-- The "mark as emptied" endpoint uses `POST` because it creates a new record every time it is called. Emptying a bin multiple times means multiple events occurred. `PUT` is idempotent (calling it twice has the same effect as calling it once), which wouldn't make sense for a recurring action like emptying a bin.
+**RQ2: Why do the event-listing endpoints use GET and not POST?**
+
+Ans: The event-listing endpoints use `GET` because they only retrieve data and do not modify the server's state, while `POST` submits data and can modify server state.
+
+
+
+**RQ3: Why does the “mark as emptied” endpoint use POST and not PUT? Think about idempotency.**
+
+Ans: The "mark as emptied" endpoint typically uses POST instead of PUT because it represents a procedural action rather than a direct resource replacement, and it may not be truly idempotent. While PUT is meant for replacing or updating a specific, known resource, POST is used to perform actions where the server often controls the state change.
+
+
 
 **RQ4: How did you handle the case where a client requests a bin or sensor that does not exist? What status code do you return and why?**
 
-Ans:
-I handled this by checking if the returned object from the helper function (`find_bin` or `find_sensor`) is `None`. If it is, the API returns a `404 Not Found` status code using `api.abort(404, ...)`. `404` is the standard HTTP status code for requesting a resource that does not exist.
+Ans: We handled the request by checking if the returned object from the helper function ("find_bin" or "find_sensor") is "None". If it is, the API returns a "404 Not Found" status code using "api.abort(404, ...)". "404" is the standard HTTP status code for requesting a resource that does not exist.
+
+
 
 **RQ5: Where does your API read its data from? Trace the path of event data from the PIR sensor all the way to an API response.**
 
 Ans:
-1. The physical **PIR sensor** detects motion.
-2. The **producer** reads the GPIO pin and publishes a JSON-LD event to the MQTT broker.
-3. The **consumer** subscribes to the broker, receives the event, and appends it to the local `motion_events.jsonl` file.
-4. When a client requests events, the **API** parses the `motion_events.jsonl` file via the `load_events` function and returns the data as an HTTP JSON response.
+1. The physical "PIR sensor" detects motion.
+2. The "producer" reads the GPIO pin and publishes a JSON-LD event to the MQTT broker.
+3. The "consumer" subscribes to the broker, receives the event, and appends it to the local 'motion_events.jsonl' file.
+4. When a client requests events, the "API" parses the 'motion_events.jsonl' file via the 'load_events' function and returns the data as an HTTP JSON response.
+
+
 
 **RQ6: What query parameters does your events endpoint support? Show an example request and response.**
 
-Ans:
-The `/bins/<bin_id>/events` endpoint supports `limit`, `start`, and `end`.
+Ans: The '/bins/<bin_id>/events' endpoint supports 'limit', 'start', and 'end'.
 Example Request:
-`GET /bins/bin-01/events?limit=2`
+'GET /bins/bin-01/events?limit=2'
 Example Response:
 ```json
 [
@@ -89,10 +98,13 @@ Example Response:
 ]
 ```
 
+
+
 **RQ7: How do the Flask-RESTx models (api.model) relate to the Swagger UI documentation? What happens in the UI when you add a new field to a model?**
 
-Ans:
-Flask-RESTx models act as schemas that tell Swagger UI exactly what fields an object contains. When you add a new field to an `api.model` in the Python code, Swagger UI automatically updates to reflect that field in the interactive documentation and example responses, keeping the docs synchronized with the code.
+Ans: Flask-RESTx models act as schemas that tell Swagger UI exactly what fields an object contains. When you add a new field to an `api.model` in the Python code, Swagger UI automatically updates to reflect that field in the interactive documentation and example responses, keeping the docs synchronized with the code.
+
+
 
 **RQ8: Show a screenshot of your Swagger UI with endpoints visible.**
 
@@ -121,6 +133,8 @@ Ans:
 Ans:
 When the API receives a `POST /mqtt/publish` request, it extracts the `topic`, `payload`, `qos`, and `retain` fields from the JSON body. It validates the inputs, and then uses the Paho MQTT client (which is running in the background of the Flask app) to publish the message to the local Mosquitto broker.
 
+
+
 **RQ10: You published a motion event through the API using POST /mqtt/publish. Describe the full path that message takes, from the HTTP request to the consumer’s JSONL file.**
 
 Ans:
@@ -130,38 +144,48 @@ Ans:
 4. The **consumer script**, which is subscribed to the topic, receives the message from the broker.
 5. The consumer enriches the data and appends it to the `motion_events.jsonl` file.
 
+
+
 **RQ11: What does GET /mqtt/topics return? Why does the API need to subscribe to smartbin/# for this to work?**
 
 Ans:
 `GET /mqtt/topics` returns a dictionary with the total count and a list of all known topics along with their last received message data. The API needs to subscribe to `smartbin/#` so that its internal MQTT client receives every message sent across the entire Smart Wastebin topic tree. The `on_message` callback then stores the latest payload for each topic in the `topic_store` dictionary.
 
+
+
 **RQ12: You call POST /bins/bin-01/emptied. This both saves a record and publishes to MQTT. What is the advantage of combining both actions in one endpoint?**
 
-Ans:
-Combining both actions allows the API to act as a gateway. A single HTTP request reliably updates the historical record (saving to a database or file) and simultaneously notifies the real-time event-driven ecosystem (like Home Assistant or other MQTT subscribers) that the bin was emptied, ensuring state consistency across the whole system.
+Ans: Combining both actions allows the API to act as a gateway. A single HTTP request reliably updates the historical record (saving to a database or file) and simultaneously notifies the real-time event-driven ecosystem (like Home Assistant or other MQTT subscribers) that the bin was emptied, ensuring state consistency across the whole system.
+
+
 
 **RQ13: What is AsyncAPI and how does it relate to OpenAPI? Why do you need both for the Smart Wastebin?**
 
-Ans:
-AsyncAPI is a specification for documenting event-driven architectures (like MQTT), whereas OpenAPI is for synchronous REST APIs (like HTTP). We need both because the Smart Wastebin system has two distinct communication layers: a pull-based REST API (OpenAPI) for management/querying, and a push-based MQTT network (AsyncAPI) for real-time sensor streams and state updates.
+Ans: AsyncAPI is a specification for documenting event-driven architectures (like MQTT), whereas OpenAPI is for synchronous REST APIs (like HTTP). We need both because the Smart Wastebin system has two distinct communication layers: a pull-based REST API (OpenAPI) for management/querying, and a push-based MQTT network (AsyncAPI) for real-time sensor streams and state updates.
+
+
 
 **RQ14: How many channels did you document in your AsyncAPI spec? For each, state who is the publisher and who is the subscriber.**
 
-Ans:
-I documented 3 channels:
+Ans: We documented 3 channels:
 1. `smartbin/{bin_id}/{sensor_id}/events` - Publisher: Producer (PIR script), Subscriber: Consumer (JSONL writer).
 2. `smartbin/{bin_id}/{sensor_id}/motion` - Publisher: Producer, Subscriber: Home Assistant.
 3. `smartbin/{bin_id}/status` - Publisher: REST API (`/emptied` endpoint), Subscriber: Home Assistant.
+
+
 
 **RQ15: Show a screenshot of your AsyncAPI spec rendered in Swagger Editor or AsyncAPI Studio.**
 
 Ans:
 ![SwaggerEditor](swaggerEditor.png)
 
+
+
 **RQ16: Compare the MotionEvent message schema in your AsyncAPI spec with the event_model in your Flask-RESTx code. They describe the same data, what is different about the context in which each is used?**
 
-Ans:
-The AsyncAPI schema describes the raw data exactly as it is formatted when published to the MQTT broker in real-time. The Flask-RESTx `event_model` describes the data as it is formatted for HTTP clients after being processed, saved to JSONL, and queried. The REST model might include extra metadata (like `pipeline_latency_ms`) that was added later by the consumer.
+Ans: The AsyncAPI schema describes the raw data exactly as it is formatted when published to the MQTT broker in real-time. The Flask-RESTx `event_model` describes the data as it is formatted for HTTP clients after being processed, saved to JSONL, and queried. The REST model might include extra metadata (like `pipeline_latency_ms`) that was added later by the consumer.
+
+
 
 **RQ17: Show the curl command and response for: (a) listing all bins, (b) getting events with a limit, (c) publishing an MQTT message, (d) requesting a nonexistent bin.**
 
@@ -222,17 +246,20 @@ Connection: close
 }
 ```
 
+
+
 **RQ18: What is the difference between testing with Swagger UI and testing with curl? When would you use each?**
 
-Ans:
-Swagger UI is a visual, interactive tool that makes it easy to explore endpoints, read documentation, and manually fill out parameters via a web browser. `curl` is a command-line tool that is scriptable and faster for developers who know the exact request structure. You use Swagger UI for discovery and manual testing, and `curl` for automation, quick checks, or writing bash scripts.
+Ans: Swagger UI is a visual, interactive tool that makes it easy to explore endpoints, read documentation, and manually fill out parameters via a web browser. `curl` is a command-line tool that is scriptable and faster for developers who know the exact request structure. You use Swagger UI for discovery and manual testing, and `curl` for automation, quick checks, or writing bash scripts.
+
+
 
 **RQ19: A new team member joins your project. They need to build a mobile app that shows bin status and lets users report full bins. What do you hand them? How do the Swagger UI and AsyncAPI spec help?**
 
-Ans:
-I would hand them the link to the Swagger UI and the AsyncAPI YAML file. The Swagger UI provides a complete, interactive manual for how the mobile app can pull bin statuses and push updates via HTTP REST endpoints. The AsyncAPI spec helps them understand the underlying event system, in case their mobile app needs to subscribe directly to MQTT topics for real-time notifications.
+Ans: We would hand them the link to the Swagger UI and the AsyncAPI YAML file. The Swagger UI provides a complete, interactive manual for how the mobile app can pull bin statuses and push updates via HTTP REST endpoints. The AsyncAPI spec helps them understand the underlying event system, in case their mobile app needs to subscribe directly to MQTT topics for real-time notifications.
+
+
 
 **RQ20: In your own words, explain why the Smart Wastebin needs both a push-based system (MQTT) and a pull-based system (REST API). What would be missing if you only had one?**
 
-Ans:
-The push-based system (MQTT) is crucial for real-time, low-latency communication; it allows sensors to broadcast events immediately without knowing who is listening, and lets systems like Home Assistant react instantly. The pull-based system (REST API) is necessary for structured querying of historical data and state management from client apps (like mobile apps or web dashboards) that don't need a persistent connection. Without MQTT, real-time alerts would be too slow/inefficient due to HTTP polling. Without REST, clients would have no easy way to query past events or fetch the current status on demand without subscribing to the live stream.
+Ans: The push-based system (MQTT) is crucial for real-time, low-latency communication; it allows sensors to broadcast events immediately without knowing who is listening, and lets systems like Home Assistant react instantly. The pull-based system (REST API) is necessary for structured querying of historical data and state management from client apps (like mobile apps or web dashboards) that don't need a persistent connection. Without MQTT, real-time alerts would be too slow/inefficient due to HTTP polling. Without REST, clients would have no easy way to query past events or fetch the current status on demand without subscribing to the live stream. In example, if a bin is full, the information is sent to the API using MQTT, which then allows the waste collection agency to check in the API which bin is full and its location, and then send a truck to collect the waste.
