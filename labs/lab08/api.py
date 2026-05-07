@@ -238,6 +238,28 @@ class Sensor(Resource):
 
 
 
+@ns_mqtt.route("/topics")
+class MQTTTopics(Resource):
+    def get(self):
+        """List all known MQTT topics and their last received message"""
+        with topic_lock:
+            return {
+                "topic_count": len(topic_store),
+                "topics": list(topic_store.values())
+            }, 200
+
+@ns_mqtt.route("/topics/<path:topic>")
+@ns_mqtt.param("topic", "MQTT topic path, for example smartbin/bin-01/pir-01/motion")
+class MQTTTopicDetail(Resource):
+    @ns_mqtt.response(404, "Topic not found or no message received yet")
+    def get(self, topic):
+        """GET the last received message for a specific MQTT topic"""
+        with topic_lock:
+            if topic not in topic_store:
+                ns_mqtt.abort(404, f"No message received on topic '{topic}'")
+            return topic_store[topic], 200
+
+
 @ns_mqtt.route("/publish")
 class MqttPublish(Resource):
     @ns_mqtt.expect(publish_model)
