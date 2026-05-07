@@ -204,7 +204,24 @@ class BinEmptied(Resource):
             "emptied_by": data.get("emptied_by", "unknown")
         }
         
-        # Save record (mock implementation)
+        # Save record to file
+        import os
+        data_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
+        os.makedirs(data_dir, exist_ok=True)
+        with open(os.path.join(data_dir, "emptied.log"), "a", encoding="utf-8") as f:
+            f.write(json.dumps(record) + "\n")
+
+        # Publish an MQTT message
+        mqtt_payload = {
+            "state": "emptied",
+            "emptied_at": record["emptied_at"]
+        }
+        mqtt_client.publish(
+            topic=f"smartbin/{bin_id}/status",
+            payload=json.dumps(mqtt_payload),
+            qos=1,
+            retain=True
+        )
         
         return record, 201
 
