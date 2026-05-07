@@ -17,6 +17,7 @@ topic_lock = threading.Lock()
 
 def on_message(client, userdata, msg):
     with topic_lock:
+        print("1")
         topic_store[msg.topic] = {
             "topic": msg.topic,
             "payload": msg.payload.decode("utf-8", errors="replace"),
@@ -353,5 +354,5 @@ class EventList(Resource):
 
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=5000)
+    app.run(debug=True, host="0.0.0.0", port=5000, use_reloader=False)
 
