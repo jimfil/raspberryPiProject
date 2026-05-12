@@ -126,10 +126,11 @@ def main(
     bin_short_id = bin_urn.split(":")[-1]
     
     topic = f"smartbin/{bin_short_id}/{sensor_short_id}/events"
+    
     status_topic = f"smartbin/{bin_short_id}/status"
     motion_topic = f"smartbin/{bin_short_id}/{sensor_short_id}/motion"
     count_topic = f"smartbin/{bin_short_id}/{sensor_short_id}/event_count"
-    
+    print(topic,status_topic,motion_topic,count_topic)
     environment_id = DEFAULT_ENVIRONMENT_ID # Could also be loaded from models
     global stop_flag
     signal.signal(signal.SIGINT, handle_sigint)
