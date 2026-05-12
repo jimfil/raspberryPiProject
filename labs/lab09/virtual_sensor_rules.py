@@ -51,7 +51,7 @@ def evaluate_usage(windowMinutes=10):
 
 
 def main(broker: str, port: int, subscribe_topic: str, publish_topic: str, window: int, interval: int):
-    client = mqtt.Client("virtual-sensor-rules")
+    client = mqtt.Client()
     client.on_message = on_message
     client.connect(broker, port)
     client.subscribe(subscribe_topic)

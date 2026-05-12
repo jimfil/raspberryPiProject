@@ -38,7 +38,7 @@ def predict_next_hour(model):
 
 def main(model_path, broker, port, publish_topic, interval, bin_id):
     model = load_model(model_path)
-    client = mqtt.Client("virtual-sensor-ml")
+    client = mqtt.Client()
     client.connect(broker, port)
     client.loop_start()
     print(f"[Virtual Sensor ML] Monitoring {publish_topic} for usage prediction")
