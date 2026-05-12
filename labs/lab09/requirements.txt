@@ -4,3 +4,7 @@ paho-mqtt
 flask
 flask-restx
 rpi-lgpio
+pandas
+scikit-learn
+joblib
+numpy
