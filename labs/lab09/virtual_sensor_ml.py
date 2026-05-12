@@ -24,7 +24,8 @@ def predict_next_hour(model):
 
     prediction = model.predict(features)
     probabilities = model.predict_proba(features)
-    confidence = probabilities[0][prediction[0]]
+    print(probabilities)
+    confidence = np.max(probabilities[0])
     return prediction, confidence, next_hour
 
 
