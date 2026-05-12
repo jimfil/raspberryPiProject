@@ -5,6 +5,6 @@ flask
 flask-restx
 rpi-lgpio
 pandas
-scikit-learn
+sklearn
 joblib
 numpy
