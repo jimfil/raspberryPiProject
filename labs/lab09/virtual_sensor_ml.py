@@ -63,17 +63,18 @@ def main(model_path, broker, port, publish_topic, interval, bin_id):
                 dayName = "Saturday"
             elif features[1] == 6:
                 dayName = "Sunday"
-
+            confidence_value = round(float(confidence), 3)
+            is_weekend = features[2]
             payload = {
                 "prediction": prediction,
-                "confidence": round(float(confidence), 3),
+                "confidence": confidence_value,
                 "predicted_hour": next_hour,
                 "utc_prediction_timestamp": timestamp,
                 "model_name": "busy_predictor.joblib",
                 "features_used": {
                     "day_of_week": dayName,
                     "hour": next_hour,
-                    "is_weekend": features[2]
+                    "is_weekend": is_weekend
                 }
             }
             client.publish(publish_topic, json.dumps(payload), qos=1, retain=True)
