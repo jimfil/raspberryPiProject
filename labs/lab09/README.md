@@ -119,7 +119,7 @@ Ans:
 
 **RQ10: Give one scenario where the rule-based sensor and the ML sensor disagree. Which one would you trust more in that scenario, and why?**
 
-Ans:
+Ans: If we have a smart bin in a public place, and the ML has mapped the area for enough time, it will create a shedule where we know when the bin is probably going to be full, but an unusual occurence may take place where a lot of people with trash to discard pass by our bin and use it, thus making the ML sensor untrustworthy in this scenario.
 
 
 
@@ -143,7 +143,7 @@ Ans:
 
 **RQ14: Both virtual sensors publish to MQTT. Could a third virtual sensor subscribe to their output and combine them? Give an example.**
 
-Ans:
+Ans: Yes, a third virtual sensor can subscribe to the output of two other MQTT sensors and combine them. For example, we could combine the fill level and the motion sensor, using the third virtual sensor to maybe signal to the possible users of the smart bin using a sound queue or something else that the bin is full.
 
 
 
@@ -155,7 +155,7 @@ Ans:
 
 **RQ16: In the DIKW pyramid, where does the raw motion event sit? Where does the usage level sit? Where does the prediction sit? What moved the data up each level?**
 
-Ans:
+Ans: The raw motion events like location, timestamps, temperature without context sit at the base of the DIKW pyramid, occupying the Data level. Next, we have the usage level, which sits at the Information level of the pyramid, wherewe give the ray data context and meaning so it becomes inforamtion. Lastly, we have prediction at the Knowledge level, which uses information to calculate and predict certain events happening.
 
 
 
