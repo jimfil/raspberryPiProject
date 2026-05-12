@@ -26,7 +26,6 @@ def predict_next_hour(model):
 
     prediction = model.predict(features)
     probabilities = model.predict_proba(features)
-    print(probabilities)
     confidence = np.max(probabilities[0])
     return prediction.tolist(), confidence.item(), next_hour, [next_hour, dayOfWeek, isWeekend]
 
