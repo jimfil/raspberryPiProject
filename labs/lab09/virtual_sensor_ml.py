@@ -15,7 +15,7 @@ def predict_next_hour(model):
 
     dayOfWeek = now.weekday()
 
-    if dayOfWeek == 5 or dayOfWeek == 6:
+    if dayOfWeek == 5 or dayOfWeek == 6: # saturday or sunday 
         isWeekend = 1
     else:
         isWeekend = 0
@@ -26,7 +26,7 @@ def predict_next_hour(model):
     probabilities = model.predict_proba(features)
     print(probabilities)
     confidence = np.max(probabilities[0])
-    return prediction, confidence, next_hour
+    return prediction, confidence, next_hour, features[0]
 
 
 @click.command()
@@ -45,9 +45,24 @@ def main(model_path, broker, port, publish_topic, interval, bin_id):
     print(f"[Virtual Sensor ML] Monitoring {publish_topic} for usage prediction")
     try:
         while True:
-            prediction, confidence, next_hour = predict_next_hour(model)
+            prediction, confidence, next_hour, features = predict_next_hour(model)
 
             timestamp = time.time()
+
+            if features[1] == 0:
+                dayName = "Monday"
+            elif features[1] == 1:
+                dayName = "Tuesday"
+            elif features[1] == 2:
+                dayName = "Wednesday"
+            elif features[1] == 3:
+                dayName = "Thursday"
+            elif features[1] == 4:
+                dayName = "Friday"
+            elif features[1] == 5:
+                dayName = "Saturday"
+            elif features[1] == 6:
+                dayName = "Sunday"
 
             payload = {
                 "prediction": prediction,
@@ -56,9 +71,9 @@ def main(model_path, broker, port, publish_topic, interval, bin_id):
                 "utc_prediction_timestamp": timestamp,
                 "model_name": "busy_predictor.joblib",
                 "features_used": {
-                    "day_of_week": dayOfWeek,
+                    "day_of_week": dayName,
                     "hour": next_hour,
-                    "is_weekend": isWeekend
+                    "is_weekend": features[2]
                 }
             }
             client.publish(publish_topic, json.dumps(payload), qos=1, retain=True)
