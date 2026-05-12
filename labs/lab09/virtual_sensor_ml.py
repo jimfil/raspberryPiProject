@@ -15,7 +15,7 @@ def predict_next_hour(model):
 
     dayOfWeek = now.weekday()
 
-    if dayOfWeek is 5 or dayOfWeek is 6:
+    if dayOfWeek == 5 or dayOfWeek == 6:
         isWeekend = 1
     else:
         isWeekend = 0
