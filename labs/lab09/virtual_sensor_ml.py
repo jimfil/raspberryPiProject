@@ -1,0 +1,72 @@
+import paho.mqtt.client as mqtt
+import json
+import time
+import argparse
+import joblib
+import numpy as np
+from datetime import datetime
+
+def load_model(path):
+    return joblib.load(path)
+
+def predict_next_hour(model):
+    now = datetime.now()
+    next_hour = (now.hour + 1) % 24
+
+    dayOfWeek = now.weekday()
+
+    if dayOfWeek is 5 or dayOfWeek is 6:
+        isWeekend = 1
+    else:
+        isWeekend = 0
+
+    features = np.array([[next_hour, dayOfWeek, isWeekend]])
+
+    prediction = model.predict(features)
+    probabilities = model.predict_proba(features)
+    confidence = probabilities[0][prediction[0]]
+    return prediction, confidence, next_hour
+
+
+@click.command()
+@click.option("--model-path", default="models/busy_predictor.joblib", help="Path to the trained ML model")
+@click.option("--broker", default="localhost", help="MQTT Broker address")
+@click.option("--port", type=int, default=1883, help="MQTT Broker port")
+@click.option("--publish-topic", default="smartbin/bin-01/usage", help="MQTT topic to publish to")
+@click.option("--interval", type=int, default=30, help="Time between predictions in seconds")
+@click.option("--bin-id", default="bin-01", help="Identifier for the smart bin")
+
+def main(model_path, broker, port, publish_topic, interval, bin_id):
+    model = load_model(model_path)
+    client = mqtt.Client("virtual-sensor-ml")
+    client.connect(broker, port)
+    client.loop_start()
+    print(f"[Virtual Sensor ML] Monitoring {publish_topic} for usage prediction")
+    try:
+        while True:
+            prediction, confidence, next_hour = predict_next_hour(model)
+
+            timestamp = time.time()
+
+            payload = {
+                "prediction": prediction,
+                "confidence": round(float(confidence), 3),
+                "predicted_hour": next_hour,
+                "utc_prediction_timestamp": timestamp,
+                "model_name": "busy_predictor.joblib",
+                "features_used": {
+                    "day_of_week": dayOfWeek,
+                    "hour": next_hour,
+                    "is_weekend": isWeekend
+                }
+            }
+            client.publish(publish_topic, json.dumps(payload), qos=1, retain=True)
+            print(f"[Virtual Sensor ML] Predicted hour: {next_hour} Prediction: {prediction} Confidence Percentage: {confidence}")
+            time.sleep(interval)
+    except KeyboardInterrupt:
+        client.disconnect()
+        print("[Virtual Sensor ML] Disconnected from broker.")
+        
+
+if __name__ == "__main__":
+    main()
