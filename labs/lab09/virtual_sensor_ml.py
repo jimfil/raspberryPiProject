@@ -4,6 +4,7 @@ import time
 import click
 import joblib
 import numpy as np
+import pandas as pd
 from datetime import datetime
 
 def load_model(path):
@@ -20,13 +21,14 @@ def predict_next_hour(model):
     else:
         isWeekend = 0
 
-    features = np.array([[next_hour, dayOfWeek, isWeekend]])
+    features = pd.DataFrame([[dayOfWeek, next_hour, isWeekend]], 
+                            columns=["day_of_week", "hour", "is_weekend"])
 
     prediction = model.predict(features)
     probabilities = model.predict_proba(features)
     print(probabilities)
     confidence = np.max(probabilities[0])
-    return prediction.tolist(), confidence.item(), next_hour, features[0].tolist()
+    return prediction.tolist(), confidence.item(), next_hour, [next_hour, dayOfWeek, isWeekend]
 
 
 @click.command()
