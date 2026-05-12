@@ -26,7 +26,7 @@ def predict_next_hour(model):
     probabilities = model.predict_proba(features)
     print(probabilities)
     confidence = np.max(probabilities[0])
-    return prediction, confidence, next_hour, features[0]
+    return prediction.tolist(), confidence.item(), next_hour, features[0].tolist()
 
 
 @click.command()
