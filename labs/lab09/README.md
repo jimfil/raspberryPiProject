@@ -12,7 +12,7 @@ git clone https://github.com/jimfil/raspberryPiProject.git
 Before running the code, ensure the PIR sensor is wired correctly to the Raspberry Pi:
 - **VCC** -> Pin 2 (5V)
 - **GND** -> Pin 6 (GND)
-- **OUT** -> Pin 11 (GPIO17)
+- **OUT** -> Pin 11 (GPIO17 / Physical Pin 11)
 
 ### Environment Setup / Activation (venv)
 Navigate to the `labs/lab09` directory:
@@ -27,36 +27,49 @@ pip install -r requirements.txt
 ```
 
 ### Prerequisites: MQTT Broker
-You need a running MQTT broker (e.g., Mosquitto). On a Raspberry Pi, it usually runs as a service. You can check its status:
+Ensure you have a running MQTT broker (e.g., Mosquitto). You can check its status:
 ```bash
 sudo systemctl status mosquitto
 ```
 
 ### Running the System
 
-To run the complete pipeline, open three separate terminals in the `labs/lab08` directory:
+To run the complete pipeline, open four separate terminals in the `labs/lab09` directory:
 
-1. **Terminal 1: Start the API**
+1. **Terminal 1: Start the Producer**
    ```bash
-   python api.py
+   python producer.py --broker localhost --pin 11
    ```
-   *Note: The API dynamically loads bins and sensors from the `models/` directory.*
+   *Reads the physical PIR sensor and publishes events to MQTT.*
 
 2. **Terminal 2: Start the Consumer**
    ```bash
-   python consumer.py --sensor_id urn:dev:team05:pir-01
+   python consumer.py --verbose
    ```
-   *The consumer will listen for events and save them to `data/pir-01_events.log`.*
+   *Listens for events and saves them to `data/` logs.*
 
-3. **Terminal 3: Start the Producer**
+3. **Terminal 3: Start the Rule-based Virtual Sensor**
    ```bash
-   python producer.py --bin_id bin-01 --sensor_id pir-01
+   python virtual_sensor_rules.py --broker localhost --subscribe-topic "smartbin/bin-01/pir-01/events" --publish-topic smartbin/bin-01/usage --window 10 --interval 10
    ```
-   *The producer will read the physical PIR sensor and publish events to MQTT.*
+   *Analyzes real-time motion frequency to determine usage levels (idle, low, medium, high).*
 
-### Accessing the Documentation
-Once the API is running, you can view the interactive Swagger UI at:
-`http://<your-pi-ip>:5000/`
+4. **Terminal 4: Start the ML Virtual Sensor**
+   First, train the model (if not already done):
+   ```bash
+   python train_model.py
+   ```
+   Then, run the ML sensor:
+   ```bash
+   python virtual_sensor_ml.py --broker localhost --publish-topic smartbin/bin-01/prediction --interval 60
+   ```
+   *Predicts the bin's usage level for the next hour using a Random Forest classifier.*
+
+### Monitoring MQTT Traffic
+You can verify the messages being published by subscribing to all smartbin topics:
+```bash
+mosquitto_sub -h localhost -t "smartbin/#" -v
+```
 
 
 ---
