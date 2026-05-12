@@ -125,13 +125,13 @@ Ans:
 
 **RQ11: The rule-based sensor reacts to the present. The ML sensor predicts the future. Give one use case where each is more useful.**
 
-Ans:
+Ans: The rule-based sensor would prove more useful if we have a random day in which a lot of people use the smart bin in, let's say a public area, and it detects when the bin is full or close to full. The ML sensor would prove useful in a situation where we have a smart bin or bins in a more controlled environment like an office building where the sensor has gathered enough data to predict when a bin is going to be full, or in which area, taking into account the working hours and office spaces the workers primarily have.
 
 
 
 **RQ12: If motion patterns changed tomorrow (e.g., the bin was moved to a new location), which sensor would adapt first? What would you need to do for the other?**
 
-Ans:
+Ans: The rule-based sensor would adapt first because it acts independently and it doesn't need data of the area and time beforehand like  the ML sensor.
 
 
 
