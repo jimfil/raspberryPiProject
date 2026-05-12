@@ -161,12 +161,12 @@ Ans:
 
 **RQ17: In your own words, what is a virtual sensor? How does it differ from a physical sensor?**
 
-Ans:
+Ans: Virtual sensors are software-based models of physical sensors that can simulate their behaviour and generate sensor readings without the need for actual physical hardware, unlike physical sensors.
 
 
 
 **RQ18: If you had access to additional sensors (temperature, fill level, noise), what virtual sensor could you build by combining them? Describe the inputs, the logic, and the output.**
 
-Ans:
+Ans: We could build a VS that can detect if animals made their way into the bin by combining temperature, motion and noise sensors, where if constant motion was being detecter, or/and animal sounds are being detected, or/and an unusual level of temperatureis being detected, the local animal rescue organization is going to be notified that an animal may be trapped in our smart bin.
 
 
