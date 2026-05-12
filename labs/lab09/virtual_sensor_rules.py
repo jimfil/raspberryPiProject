@@ -1,4 +1,4 @@
-import mqtt_client
+import paho.mqtt.client as mqtt
 import json
 import time
 import click
@@ -51,7 +51,7 @@ def evaluate_usage(windowMinutes=10):
 
 
 def main(broker: str, port: int, subscribe_topic: str, publish_topic: str, window: int, interval: int):
-    client = mqtt.Client()
+    client = mqtt.Client(client_id="virtual-sensor-rules")
     client.on_message = on_message
     client.connect(broker, port)
     client.subscribe(subscribe_topic)
@@ -68,11 +68,6 @@ def main(broker: str, port: int, subscribe_topic: str, publish_topic: str, windo
         client.publish(publish_topic, json.dumps(payload), qos=1, retain=True)
         print(f"[Virtual Sensor Rules] State: {state}, Count: {count}")
         time.sleep(interval)
-    client = mqtt.Client(client_id="virtual-sensor-rules")
-    client.on_message = on_message
-    client.connect(broker, port)
-    client.subscribe(subscribe_topic)
-    
     try:
         while True:
             state, count = evaluate_usage(window)
