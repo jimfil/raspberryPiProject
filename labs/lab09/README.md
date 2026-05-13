@@ -126,7 +126,7 @@ Ans:
 
 **RQ9: The model publishes a confidence score alongside the prediction. Why is this useful? What should a consumer do if confidence is low (e.g., 55%)?**
 
-Ans:
+Ans: The confidence score represents the probability assigned by the classifier to the most likely class, indicating how "sure" the model is about its prediction. This is extremely useful for automated decision-making. If confidence is low (e.g., 55%), a consumer application might choose to ignore the prediction, alert a human operator for manual verification, or fall back to the real-time rule-based sensor until the model provides a more certain result.
 
 
 
@@ -144,14 +144,13 @@ Ans: The rule-based sensor would prove more useful if we have a random day in wh
 
 **RQ12: If motion patterns changed tomorrow (e.g., the bin was moved to a new location), which sensor would adapt first? What would you need to do for the other?**
 
-Ans: The rule-based sensor would adapt first because it acts independently and it doesn't need data of the area and time beforehand like  the ML sensor.
+Ans: The rule-based sensor would adapt first because it relies on a short-term sliding window (e.g., the last 10 minutes) to calculate current intensity, meaning it reacts immediately to changes in behavior. The ML sensor, however, would continue to predict patterns based on its training data from the old location. To adapt the ML sensor, we would need to collect several weeks of motion data at the new location and retrain the model to recognize the new temporal patterns.
 
 
 
 **RQ13: You added two new processing components to your system without modifying the producer or consumer. How did the pub/sub architecture make this possible?**
 
-Ans:
-
+Ans: The pub/sub architecture decouples data producers from consumers via the MQTT broker. The PIR sensor producer simply publishes raw events to a specific topic without knowing who is listening. We were able to "tap into" this stream by creating two new virtual sensors that subscribe to the same raw event topic. They process the data independently and publish their findings to entirely new topics.
 
 
 **RQ14: Both virtual sensors publish to MQTT. Could a third virtual sensor subscribe to their output and combine them? Give an example.**
