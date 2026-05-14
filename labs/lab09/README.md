@@ -161,7 +161,7 @@ Ans: Yes, a third virtual sensor can subscribe to the output of two other MQTT s
 
 **RQ15: Show a screenshot with the raw motion sensor, usage intensity, and activity prediction all visible.**
 
-Ans:
+Ans: ![System components output showing producer, rule-based sensor, and ML sensor](image.png)
 
 
 
