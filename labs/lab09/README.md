@@ -108,7 +108,8 @@ Ans: We used the day of the week, the hour and if it is weekend or not, because 
 
 **RQ6: Show the classification report from training. What is the accuracy? Which class (busy/quiet) is harder to predict?**
 
-Ans:
+Ans: ![Model training classification report](image_model.png)
+The model achieves an overall accuracy of 94%. The 'busy' class is harder to predict, as evidenced by its lower precision (0.84) and F1-score (0.89) compared to the 'quiet' class, with a precision of 0.98.
 
 
 
