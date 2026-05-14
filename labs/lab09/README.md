@@ -78,31 +78,31 @@ mosquitto_sub -h localhost -t "smartbin/#" -v
 
 **RQ1: What thresholds did you use for idle/low/medium/high? How did you decide on these values?**
 
-Ans:
+Ans: We used the thresholds that were given to us as an example (0==idle,1-5==low,6-15==medium,16+==high) because they seemed logical, if we consider the bin to be in a public place probably in a university common area where a good number of students pass through regularly.
 
 
 
 **RQ2: What window size did you choose and why? What happens if you make it too short (e.g., 1 minute) or too long (e.g., 60 minutes)?**
 
-Ans:
+Ans: We again used the default value given (10 minutes) because we assume that the smart bin will be used at an area where a lot of students pass through as we said before. if we made it too short, like 1 minute, the usages would probably be 0 or 1 most of the times, and although we would get an extremely accurate usage time shedule, we would have 10 times the amount of data than before, making it difficult to use the data to train the smart bin for predictions, and if it is too long, like 60 minutes, we would have too few samples (24 a day) to train the smart bin for predictions, with a lot of minutes in an hour window where we don't exactly know what's accurately happening (high usage in first half hour, low usage in second for example).
 
 
 
 **RQ3: How does the rolling window implementation (the deque) relate to what the lecture described as CEP windowed operators?**
 
-Ans:
+Ans: In Complex Event Processing (CEP), windowed operators are the mechanism used to process infinite streams of data in finite "chunks." The deque (double-ended queue) is the standard data structure used to implement these windows efficiently in memory.
 
 
 
 **RQ4: What would you need to change if you wanted to add a new level (e.g., “critical” for bins that might overflow)?**
 
-Ans:
+Ans: We would need to add a counter that doesn't reset every time window that passes, only when the bin is emptied, and a threshold that can semi-accurately tell us the number of uses that fill the bin, and when the counter reaches that threshold, then the state is 'critical'.
 
 
 
 **RQ5: What features did you use for the classifier? Why these features?**
 
-Ans:
+Ans: We used the day of the week, the hour and if it is weekend or not, because it will receive the raw hour data we generated using the train_model.py and categorize it in a weekly shedule.
 
 
 
@@ -114,13 +114,13 @@ Ans:
 
 **RQ7: Why did we use a Random Forest classifier? Could you use a different model? What would change?**
 
-Ans:
+Ans: We use a Random Forest classifier because it’s reliable, handles messy data well, and is much harder to "break" (overfit) than a single decision tree.
 
 
 
 **RQ8: The training data is synthetic. What would change if you used real motion data collected over several weeks? What patterns might emerge that the synthetic data misses?**
 
-Ans:
+Ans: The training data simulated 30 days of synthetic hourly data with realistic patterns. The real motion data could indicate a different pattern that could emerge from an event that could take place in the area of the smart bin.
 
 
 
