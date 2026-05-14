@@ -38,7 +38,7 @@ To run the complete pipeline, open four separate terminals in the `labs/lab09` d
 
 1. **Terminal 1: Start the Producer**
    ```bash
-   python producer.py --broker localhost --pin 11
+   python producer.py --pin 11
    ```
    *Reads the physical PIR sensor and publishes events to MQTT.*
 
