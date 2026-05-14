@@ -102,7 +102,7 @@ Ans: We would need to add a counter that doesn't reset every time window that pa
 
 **RQ5: What features did you use for the classifier? Why these features?**
 
-Ans:
+Ans: We used the day of the week, the hour and if it is weekend or not, because it will receive the raw hour data we generated using the train_model.py and categorize it in a weekly shedule.
 
 
 
@@ -114,13 +114,13 @@ Ans:
 
 **RQ7: Why did we use a Random Forest classifier? Could you use a different model? What would change?**
 
-Ans:
+Ans: We use a Random Forest classifier because it’s reliable, handles messy data well, and is much harder to "break" (overfit) than a single decision tree.
 
 
 
 **RQ8: The training data is synthetic. What would change if you used real motion data collected over several weeks? What patterns might emerge that the synthetic data misses?**
 
-Ans:
+Ans: The training data simulated 30 days of synthetic hourly data with realistic patterns. The real motion data could indicate a different pattern that could emerge from an event that could take place in the area of the smart bin.
 
 
 
