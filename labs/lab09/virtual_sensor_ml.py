@@ -30,6 +30,41 @@ def predict_next_hour(model):
     return prediction.tolist(), confidence.item(), next_hour, [next_hour, dayOfWeek, isWeekend]
 
 
+def publish_discovery(client, publish_topic, bin_id):
+    print(f"[Virtual Sensor ML] Publishing HA discovery for bin {bin_id}...")
+    
+    # Prediction Sensor
+    prediction_config = {
+        "name": f"Wastebin {bin_id} Activity Prediction",
+        "state_topic": publish_topic,
+        "value_template": "{{ value_json.prediction[0] }}",
+        "unique_id": f"{bin_id}_usage_prediction",
+        "device": {
+            "identifiers": [bin_id],
+            "name": f"Smart Wastebin {bin_id}",
+            "model": "ML-based Virtual Sensor",
+            "manufacturer": "IoT Lab"
+        },
+        "icon": "mdi:crystal-ball"
+    }
+    client.publish(f"homeassistant/sensor/{bin_id}_prediction/config", json.dumps(prediction_config), retain=True)
+
+    # Confidence Sensor
+    confidence_config = {
+        "name": f"Wastebin {bin_id} Prediction Confidence",
+        "state_topic": publish_topic,
+        "value_template": "{{ (value_json.confidence * 100) | round(1) }}",
+        "unique_id": f"{bin_id}_prediction_confidence",
+        "device": {
+            "identifiers": [bin_id],
+            "name": f"Smart Wastebin {bin_id}"
+        },
+        "unit_of_measurement": "%",
+        "icon": "mdi:shield-check"
+    }
+    client.publish(f"homeassistant/sensor/{bin_id}_confidence/config", json.dumps(confidence_config), retain=True)
+
+
 @click.command()
 @click.option("--model-path", default="models/busy_predictor.joblib", help="Path to the trained ML model")
 @click.option("--broker", default="localhost", help="MQTT Broker address")
@@ -37,33 +72,23 @@ def predict_next_hour(model):
 @click.option("--publish-topic", default="smartbin/bin-01/usage", help="MQTT topic to publish to")
 @click.option("--interval", type=int, default=30, help="Time between predictions in seconds")
 @click.option("--bin-id", default="bin-01", help="Identifier for the smart bin")
-
 def main(model_path, broker, port, publish_topic, interval, bin_id):
     model = load_model(model_path)
     client = mqtt.Client()
     client.connect(broker, port)
     client.loop_start()
+    
+    publish_discovery(client, publish_topic, bin_id)
+    
     print(f"[Virtual Sensor ML] Monitoring {publish_topic} for usage prediction")
     try:
         while True:
             prediction, confidence, next_hour, features = predict_next_hour(model)
-
             timestamp = time.time()
-
-            if features[1] == 0:
-                dayName = "Monday"
-            elif features[1] == 1:
-                dayName = "Tuesday"
-            elif features[1] == 2:
-                dayName = "Wednesday"
-            elif features[1] == 3:
-                dayName = "Thursday"
-            elif features[1] == 4:
-                dayName = "Friday"
-            elif features[1] == 5:
-                dayName = "Saturday"
-            elif features[1] == 6:
-                dayName = "Sunday"
+            
+            day_names = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+            dayName = day_names[features[1]]
+            
             confidence_value = round(float(confidence), 3)
             is_weekend = features[2]
             payload = {
@@ -84,7 +109,6 @@ def main(model_path, broker, port, publish_topic, interval, bin_id):
     except KeyboardInterrupt:
         client.disconnect()
         print("[Virtual Sensor ML] Disconnected from broker.")
-        
 
 if __name__ == "__main__":
     main()
