@@ -1,4 +1,4 @@
-# Lab 09 — Data Processing on Edge Devices
+# Lab 10 — Node-RED LCDP
 
 ## Section A: Runbook (How to run our code)
 
@@ -38,32 +38,12 @@ To run the complete pipeline, open four separate terminals in the `labs/lab09` d
 
 1. **Terminal 1: Start the Producer**
    ```bash
-   python producer.py --pin 11
+   python producer.py --pin 4
    ```
    *Reads the physical PIR sensor and publishes events to MQTT.*
 
-2. **Terminal 2: Start the Consumer**
-   ```bash
-   python consumer.py --verbose
-   ```
-   *Listens for events and saves them to `data/` logs.*
+2. **Open the Node-RED editor by navigating to [pi's:IP_ADDRESS]:1880**
 
-3. **Terminal 3: Start the Rule-based Virtual Sensor**
-   ```bash
-   python virtual_sensor_rules.py --broker localhost --subscribe-topic "smartbin/bin-01/pir-01/events" --publish-topic smartbin/bin-01/usage --window 10 --interval 10
-   ```
-   *Analyzes real-time motion frequency to determine usage levels (idle, low, medium, high).*
-
-4. **Terminal 4: Start the ML Virtual Sensor**
-   First, train the model (if not already done):
-   ```bash
-   python train_model.py
-   ```
-   Then, run the ML sensor:
-   ```bash
-   python virtual_sensor_ml.py --broker localhost --publish-topic smartbin/bin-01/prediction --interval 60
-   ```
-   *Predicts the bin's usage level for the next hour using a Random Forest classifier.*
 
 ### Monitoring MQTT Traffic
 You can verify the messages being published by subscribing to all smartbin topics:
