@@ -64,7 +64,7 @@ Ans: Node-RED differs from writing a Python script primarily in its event-driven
 
 **RQ2: What is the Node-RED message object? What is msg.payload and why does every node use it?**
 
-Ans:
+Ans: The Node-RED message object is a JSON object that is passed between nodes in a flow. It has a payload property that contains the data that is being passed between the nodes. Every node in Node-RED uses the payload property to receive and send data.  The reason every node uses it is for convienence and standatization.  
 
 
 
