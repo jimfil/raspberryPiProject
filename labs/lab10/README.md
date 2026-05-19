@@ -82,31 +82,31 @@ Ans:
 
 **RQ5: In the counting Function node, you might have used flow.set and flow.get. What do these do? How is this similar to and different from a Python variable?**
 
-Ans:
+Ans: In Node-RED, `flow.set()` and `flow.get()` are used to store and retrieve variables that persist for the entire duration of the flow. We used them to keep track of the number of motion events and the last time motion was detected.
 
 
 
 **RQ6: How does the Switch node compare to a Python if statement? What advantages does the visual version have?**
 
-Ans:
+Ans: The Switch node in Node-RED is used to control the flow of messages based on a set of conditions. It is similar to an if statement in Python, but it is a visual representation of the conditional logic and we can represent the many `if...else` statements in a simple block.
 
 
 
 **RQ7: You built a branching flow (count → publish + alert if high). In Python, this would be an if-else block. In Node-RED, it is visible wiring. Which is easier to understand at a glance? Which is easier to test?**
 
-Ans:
+Ans: The branching flow in Node-RED is easier to understand at a glance because we can see the flow of messages and the conditions that control it. It is also easier to test because we can test each node individually and see the output of each node via the debug nodes.
 
 
 
 **RQ8: Your Python consumer and your Node-RED flow both subscribe to the same MQTT topic. How is this possible? Do they interfere with each other?**
 
-Ans:
+Ans: Since they only subscribe to the topic, they dont interfere with each other at all. If they were both publishing to the same topic, then they would likely intefere with each other.
 
 
 
 **RQ9: You could build the usage monitor as a Python script (Lab 09) or as a Node-RED flow (this lab). Compare the two approaches: lines of code vs number of nodes, ease of modification, ease of testing, who can work with each.**
 
-Ans:
+Ans: We found the node red flow much easier to build and modify, but only because we are familiar with JS. Otherwise Python would be our go to choice.
 
 
 
