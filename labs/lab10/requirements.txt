@@ -1,0 +1,10 @@
+click==8.1.7
+gpiozero==2.0.1
+paho-mqtt
+flask
+flask-restx
+rpi-lgpio
+pandas
+sklearn
+joblib
+numpy
