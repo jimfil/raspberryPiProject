@@ -78,7 +78,7 @@ mosquitto_sub -h localhost -t "smartbin/#" -v
 
 **RQ1: How does Node-RED differ from writing a Python script? What is the “unit of work” in each? (In Python it is a function or a class. In Node-RED it is…?)**
 
-Ans:
+Ans: Node-RED differs from writing a Python script primarily in its event-driven, visual programming model versus Python’s linear, text-based execution.  While Python scripts execute top-to-bottom as a single process, Node-RED operates as a runtime environment where flows (collections of interconnected nodes) manage asynchronous message passing between modular components. 
 
 
 
