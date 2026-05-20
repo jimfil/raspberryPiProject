@@ -76,7 +76,7 @@ Ans: The Deploy button takes that visual draft, compiles it into a functional JS
 
 **RQ4: Show a screenshot of your usage monitor flow. Label each node and explain what it does.**
 
-Ans: ![stage3.png](stage3.png)
+Ans: ![stage3.png](labs/lab10/screenshots/stage3.png)
 **Node Descriptions:**
 
 * **MQTT In (`.../motion`):** Subscribes to and receives motion events from the bin's PIR sensor.
