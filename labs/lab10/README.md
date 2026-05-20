@@ -139,7 +139,7 @@ Ans: Yes, a non-programmer could likely build this in Node-RED with minimal trai
 
 **RQ13: What are the limitations of Node-RED that the lecture mentioned? Did you encounter any of them in this lab?**
 
-Ans:
+Ans: We had a difficulty working in Node-RED at the same time for the lab, since resolving merge conflicts in it is difficult. We also saw a bit of latency between sensor readings and usage notifications, and this is probably because it is not designed to be a high-frequency data broker.
 
 
 
@@ -159,18 +159,18 @@ In contrast, `flows.json` is a single, large JSON array containing the entire la
 
 **RQ16: After building the same logic in Python (Lab 09) and Node-RED (this lab), which did you find faster to build? Which would you trust more in production? Why?**
 
-Ans:
+Ans: Node-RED was easier and we built the same logic faster in it than Python. In production, if we had to choose which one to use, we would pick Node-RED, not only because it is easier to use for a non-programmer, the node structure makes it easier to debug and fix pre and post production.
 
 
 
 **RQ17: The lecture argued that low-code platforms let more people contribute to the system. After this lab, do you agree? Who in your project team could use Node-RED that could not write the Python equivalent?**
 
-Ans:
+Ans: Truth is, it was actually harder but quicker, since all the members of our team know how to write python code, but only one member knows JavaScript, the language the code was written in, but the Python code required more effort.
 
 
 
 **RQ18: If you were designing the Smart Wastebin system from scratch, which parts would you build in Python and which in Node-RED? Explain your reasoning.**
 
-Ans:
+Ans: We would probably build all the publish-subscribe relations to Node-RED, because it is much faster and easier to impement than in Python. 
 
 
