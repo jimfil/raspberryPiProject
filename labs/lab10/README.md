@@ -76,7 +76,16 @@ Ans: The Deploy button takes that visual draft, compiles it into a functional JS
 
 **RQ4: Show a screenshot of your usage monitor flow. Label each node and explain what it does.**
 
-Ans:
+Ans: ![usage_monitor_flow](stage3.png)
+**Node Descriptions:**
+
+* **MQTT In (`.../motion`):** Subscribes to and receives motion events from the bin's PIR sensor.
+* **Switch 1:** Filters incoming messages, allowing only actual motion detections to pass through.
+* **File (`detected_events.log`):** Logs and saves the valid motion events to a local file.
+* **Function 1:** Processes the data (e.g., calculates total bin usage) and formats the final payload.
+* **MQTT Out (`.../usage/nodered`):** Publishes the processed usage data to the MQTT broker.
+* **Dashboard Nodes (`le` & `bin usage`):** Visualize the usage level on the Node-RED UI using both text and a gauge chart.
+* **Debug & Switch 2:** Auxiliary nodes used for troubleshooting the flow and inspecting output data.
 
 
 
