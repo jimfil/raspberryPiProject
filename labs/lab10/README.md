@@ -70,7 +70,7 @@ Ans: The Node-RED message object is a JSON object that is passed between nodes i
 
 **RQ3: What does the Deploy button do? Why do you need to click it after making changes?**
 
-Ans:
+Ans: The Deploy button takes that visual draft, compiles it into a functional JSON configuration, and sends it to the background Node.js server to be actively executed. We need to click it because the visual interface that we build our logic in, is separate from the runtime environment.
 
 
 
@@ -112,7 +112,7 @@ Ans: We found the node red flow much easier to build and modify, but only becaus
 
 **RQ10: Could Node-RED replace your Python producer (the script that reads the PIR sensor)? Why or why not?**
 
-Ans:
+Ans: Yes, Node-RED can replace our python producer, firstly because Node-RED has native rpi-gpio input nodes for sensors. Secondly, the implementation of publiching to the MQTT broker can be implemented very quickly and easily.
 
 
 
@@ -139,7 +139,7 @@ Ans: Yes, a non-programmer could likely build this in Node-RED with minimal trai
 
 **RQ13: What are the limitations of Node-RED that the lecture mentioned? Did you encounter any of them in this lab?**
 
-Ans: We had a difficulty working in Node-RED at the same time for the lab, since resolving merge conflicts in it is difficult. We also saw a bit of latency between sensor readings and usage notifications, and this is probably because it is not designed to be a high-frequency data broker.
+Ans: We had a difficulty working in Node-RED at the same time for the lab, since resolving merge conflicts in it is difficult.
 
 
 
@@ -171,6 +171,6 @@ Ans: Truth is, it was actually harder but quicker, since all the members of our 
 
 **RQ18: If you were designing the Smart Wastebin system from scratch, which parts would you build in Python and which in Node-RED? Explain your reasoning.**
 
-Ans: We would probably build all the publish-subscribe relations to Node-RED, because it is much faster and easier to impement than in Python. 
+Ans: We would probably build all the publish-subscribe relations to Node-RED, meaning the producer and the consumer too, because it is much faster and easier to impement than in Python, and it also handles asynchronous events greatly, meaning the pub-sub model.
 
 
