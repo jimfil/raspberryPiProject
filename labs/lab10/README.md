@@ -118,13 +118,22 @@ Ans:
 
 **RQ11: Where does Node-RED fit in your overall system architecture? Draw or describe how it sits alongside the producer, consumer, Home Assistant, and REST API.**
 
-Ans:
+Ans: Node-RED acts as an intermediary processing and automation layer within our event-driven architecture, sitting on the same tier as the Python consumer, Home Assistant, and the REST API when it comes to subscribing to the MQTT broker. 
+- **Producer**: Reads hardware sensors (PIR) and publishes raw events to the MQTT broker.
+- **MQTT Broker**: The central hub that routes messages.
+- **Node-RED**: Subscribes to the raw events from the broker, applies business logic (e.g., counting, filtering, alerting), and can publish processed metrics back to the broker or trigger external services.
+- **Home Assistant**: Subscribes to the broker for home automation and dashboards, receiving both raw events from the producer and processed states/metrics from Node-RED.
+- **Python Consumer / REST API**: The consumer listens to the broker to log data for persistence, which the REST API then exposes for external queries. Node-RED can also directly query this API using HTTP request nodes if historical data is needed.
 
 
 
 **RQ12: A facilities manager (non-programmer) wants to add a new rule: “if no motion is detected for 6 hours during business hours, mark the bin as possibly blocked.” Could they build this in Node-RED without help? What nodes would they need?**
 
-Ans:
+Ans: Yes, a non-programmer could likely build this in Node-RED with minimal training because of its intuitive visual interface and pre-built nodes, avoiding the need to write complex Python timing logic. They would primarily need the following nodes:
+- **MQTT In node**: To subscribe to the bin's motion events.
+- **Time Range (or Switch) node**: To filter messages so the logic only applies during business hours (e.g., 9 AM to 5 PM).
+- **Trigger node**: This is the key node for this task. It can be configured to send a message if it does *not* receive a new message for 6 hours. Any new motion event received resets the 6-hour timer.
+- **MQTT Out (or Debug/Email) node**: To publish the "possibly blocked" alert to a dashboard or send a notification once the Trigger node fires.
 
 
 
@@ -136,13 +145,15 @@ Ans:
 
 **RQ14: You exported your flows as flows.json. A teammate imports it into their Node-RED instance. What will they need to configure manually? (Hint: think about the MQTT broker connection.)**
 
-Ans:
+Ans: When a teammate imports the `flows.json` file, they will need to manually configure environment-specific configuration nodes. Most importantly, they will need to update the **MQTT Broker connection settings** to point to their own MQTT broker's IP address or hostname (e.g., `localhost` or their Raspberry Pi's IP). Furthermore, for security reasons, Node-RED does not export credentials (like usernames and passwords) within `flows.json`. Therefore, if the MQTT broker or any other external service requires authentication, the teammate will need to manually re-enter those credentials.
 
 
 
 **RQ15: Compare flows.json with a Python script in terms of version control. If two teammates edit the flow at the same time, what happens when they try to merge?**
 
-Ans:
+Ans: Python scripts are line-based and modular, making them very friendly to version control systems like Git. If two developers edit different parts of a Python file, Git can typically merge the changes automatically. If a conflict does occur, the differences are in readable code and relatively easy to resolve manually.
+
+In contrast, `flows.json` is a single, large JSON array containing the entire layout, node configurations, generated IDs, and connections (wiring). If two teammates edit the flow at the same time, Git will likely see massive structural changes in the JSON file. Trying to merge these changes usually results in complex merge conflicts that are extremely difficult for a human to read and resolve manually without breaking the JSON structure. Often, teams are forced to discard one person's work and manually recreate the changes in the Node-RED visual editor.
 
 
 
