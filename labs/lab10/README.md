@@ -15,9 +15,9 @@ Before running the code, ensure the PIR sensor is wired correctly to the Raspber
 - **OUT** -> Pin 11 (GPIO17 / Physical Pin 11)
 
 ### Environment Setup / Activation (venv)
-Navigate to the `labs/lab09` directory:
+Navigate to the `labs/lab10` directory:
 ```bash
-cd raspberryPiProject/labs/lab09
+cd raspberryPiProject/labs/lab10
 ```
 
 ### Dependency Installation
@@ -34,18 +34,20 @@ sudo systemctl status mosquitto
 
 ### Running the System
 
-To run the complete pipeline, open four separate terminals in the `labs/lab09` directory:
+To run and monitor the system, perform the following steps:
 
 1. **Terminal 1: Start the Producer**
    ```bash
-   python producer.py --pin 4
+   python producer.py --pin 17
    ```
    *Reads the physical PIR sensor and publishes events to MQTT.*
 
-2. **Open the Node-RED editor by navigating to [pi's:IP_ADDRESS]:1880**
+2. **Open the Node-RED Editor**
+   Open your browser and navigate to:
+   `http://[pi's:IP_ADDRESS]:1880`
+   *Here you can load, view, and deploy your visual flows.*
 
-
-### Monitoring MQTT Traffic
+3. **Terminal 2: Monitoring MQTT Traffic (Optional)**
 You can verify the messages being published by subscribing to all smartbin topics:
 ```bash
 mosquitto_sub -h localhost -t "smartbin/#" -v
