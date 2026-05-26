@@ -26,11 +26,9 @@ services:
       broker:
         condition: service_healthy
     privileged: true
-    devices:
-      - "/dev/gpiomem0:/dev/gpiomem"
-      - "/dev/gpiochip0:/dev/gpiochip0"
     volumes:
       - ./:/app
+      - /dev:/dev
     restart: unless-stopped
     environment:
       BROKER_HOST: broker
@@ -60,7 +58,6 @@ services:
       - --qos
       - "1"
       - --verbose
-
   # Event Consumer (writes to file)
   consumer:
     build:
