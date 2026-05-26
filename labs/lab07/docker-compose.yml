@@ -26,9 +26,10 @@ services:
       broker:
         condition: service_healthy
     privileged: true
+    devices:
+      - "/dev/gpiochip4:/dev/gpiochip4"
     volumes:
       - ./:/app
-      - /dev:/dev
     restart: unless-stopped
     environment:
       BROKER_HOST: broker
