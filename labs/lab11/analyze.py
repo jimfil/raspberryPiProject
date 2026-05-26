@@ -156,7 +156,6 @@ def plot_heatmap(df): #chart 4
         pivot,
         cmap="YlOrRd",
         annot=True,
-        fmt="d",
         linewidths=0.5,
         ax=ax
     )
